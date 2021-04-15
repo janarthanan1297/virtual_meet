@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "177752711990",
+    "project_id": "virtual-classroom-meet",
+    "storage_bucket": "virtual-classroom-meet.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:177752711990:android:9d04fc7ae65156dc784997",
+        "android_client_info": {
+          "package_name": "com.example.virtual_classroom_meet"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "177752711990-fd6re9bq4tt4lvmc9j7tqddqrr6asfi6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.virtual_classroom_meet",
+            "certificate_hash": "e718575a4f3b0708f903ba7e895d6cdc47496f59"
+          }
+        },
+        {
+          "client_id": "177752711990-ntlvatkmt28q8jmjtrdd4ho49pbv2muf.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDkV5fbC7py4-YjuxfsFrDt2-gdNjqppq4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "177752711990-ntlvatkmt28q8jmjtrdd4ho49pbv2muf.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
