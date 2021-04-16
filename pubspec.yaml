@@ -42,7 +42,9 @@ dependencies:
   fluttertoast: ^7.1.4
   share: ^2.0.1
   firebase_dynamic_links: ^0.6.3
-  firebase_messaging: ^7.0.3
+  firebase_messaging: 
+  firebase_core :
+  cloud_firestore:
   uuid:
   google_fonts:
   flutter_facebook_login: ^3.0.0

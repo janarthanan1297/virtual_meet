@@ -1,8 +1,10 @@
 import 'package:date_format/date_format.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'package:virtual_classroom_meet/res/color.dart';
 import 'package:intl/intl.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Schedulemeeting extends StatefulWidget {
   @override
@@ -31,6 +33,9 @@ class _SchedulemeetingState extends State<Schedulemeeting> {
   var isVis = false;
   TimeOfDay selectedTime = TimeOfDay.now();
   DateTime _currentdate = new DateTime.now();
+  String email = FirebaseAuth.instance.currentUser.email;
+  TextEditingController emailController = TextEditingController();
+
   Future<Null> _selectdate(BuildContext context) async {
     final DateTime _seldate = await showDatePicker(
         initialDate: _currentdate,
@@ -125,6 +130,21 @@ class _SchedulemeetingState extends State<Schedulemeeting> {
     });
   }
 
+  upload() async {
+    await FirebaseFirestore.instance
+        .collection('$email')
+        .doc('$_formattedate $_formattime  ')
+        .set({
+      'Meeting Name': emailController.text,
+      'Date': _formattedate,
+      'Time': _formattime,
+      'Repeat': _radioval,
+      'Code': code,
+      'video': isVideoOff,
+      'Audio': isAudioMuted
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -182,17 +202,13 @@ class _SchedulemeetingState extends State<Schedulemeeting> {
                 color: Colors.white,
                 //height: 20,
                 child: Padding(
-                  padding: const EdgeInsets.only(
-                    left: 16.0,right: 16
-                  ),
+                  padding: const EdgeInsets.only(left: 16.0, right: 16),
                   child: TextFormField(
-                    //controller: emailController,
+                    controller: emailController,
                     decoration: InputDecoration(
-                      hintText: 'Meeting Name',
+                      hintText: 'Enter Meeting Name',
                       hintStyle: TextStyle(color: Colors.grey),
-                      prefixIcon: Icon(
-                        Icons.videocam
-                      ),
+                      suffixIcon: Icon(Icons.videocam),
                     ),
                     validator: (value) {
                       /* if (value.isEmpty) {
@@ -368,11 +384,15 @@ class _SchedulemeetingState extends State<Schedulemeeting> {
                   alignment: Alignment.topLeft,
                   child: Text(
                     'SECURITY',
-                    style: TextStyle(fontSize: 18, color: Colors.black45),
+                    style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.black45,
+                        fontWeight: FontWeight.w500),
                   )),
               Container(
                 color: Colors.white,
-                height: MediaQuery.of(context).size.height / 1.9,
+                padding: EdgeInsets.only(top: 10),
+                height: MediaQuery.of(context).size.height / 2,
                 //height: size.height * 0.55,
                 child: Column(
                   children: [
@@ -388,14 +408,14 @@ class _SchedulemeetingState extends State<Schedulemeeting> {
                                 icon: Icon(Icons.autorenew_outlined),
                                 onPressed: null)),
                         validator: (value) {
-                          /* if (value.isEmpty) {
+                          if (value.isEmpty) {
                                           return 'Enter an Email Address';
                                         } else if (!value.contains('@')) {
                                           return 'Please enter a valid email address';
                                         }
-                                        return null; */
-                        },
-                      ),
+                                        return null;  
+                       },
+                     ),
                     ), */
                     isVis == true
                         ? Row(
@@ -414,7 +434,7 @@ class _SchedulemeetingState extends State<Schedulemeeting> {
                           )
                         : Container(),
                     SizedBox(
-                      height: 20,
+                      height: 15,
                     ),
                     InkWell(
                       onTap: generateMeetingCode,
@@ -435,6 +455,9 @@ class _SchedulemeetingState extends State<Schedulemeeting> {
                         ),
                       ),
                     ),
+                    SizedBox(
+                      height: 25,
+                    ),
                     CheckboxListTile(
                       activeColor: primary,
                       value: isVideoOff,
@@ -449,7 +472,7 @@ class _SchedulemeetingState extends State<Schedulemeeting> {
                       ),
                     ),
                     SizedBox(
-                      height: 16,
+                      height: 5,
                     ),
                     CheckboxListTile(
                       activeColor: primary,
@@ -465,10 +488,12 @@ class _SchedulemeetingState extends State<Schedulemeeting> {
                       ),
                     ),
                     SizedBox(
-                      height: 60,
+                      height: 40,
                     ),
                     InkWell(
                       onTap: () {
+                        upload();
+                        Navigator.pop(context);
                         /*  Navigator.pushReplacement(
                     context,
                     new MaterialPageRoute(
