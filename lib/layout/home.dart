@@ -51,7 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               activeIcon: Icon(
                 Icons.schedule,
-                color: Colors.red,
+                color: red,
               ),
               title: Text("Schedule")),
         ],

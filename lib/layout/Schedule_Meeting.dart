@@ -133,8 +133,7 @@ class _SchedulemeetingState extends State<Schedulemeeting> {
   upload() async {
     await FirebaseFirestore.instance
         .collection('$email')
-        .doc('$_formattedate $_formattime  ')
-        .set({
+        .add({
       'Meeting Name': emailController.text,
       'Date': _formattedate,
       'Time': _formattime,

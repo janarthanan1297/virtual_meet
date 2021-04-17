@@ -52,7 +52,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
               color: Colors.white,
               ) ,
               titleTextStyle: TextStyle(color: Colors.white,fontSize: 18),
-              decoration: BoxDecoration(color:primary),
+              decoration: BoxDecoration(color:red),
              ),
              calendarStyle: CalendarStyle(
                selectedColor: primary,

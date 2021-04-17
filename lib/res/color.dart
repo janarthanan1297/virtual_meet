@@ -6,6 +6,7 @@ const Color black = Color(0xFF000000);
 //const Color primary = Color(0xFF0e72ec);
 const Color primary = Color(0xFF792ffd);
 const Color red = Color(0xFFd72c21);
+const Color red1 = Color(0xFFfddad9);
 const Color green = Color(0xFF22d759);
 const Color grey = Color(0xFF727176);
 

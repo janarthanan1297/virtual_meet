@@ -45,6 +45,7 @@ dependencies:
   firebase_messaging: 
   firebase_core :
   cloud_firestore:
+  timeline_tile: ^2.0.0
   uuid:
   google_fonts:
   flutter_facebook_login: ^3.0.0

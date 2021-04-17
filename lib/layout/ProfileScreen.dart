@@ -51,7 +51,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     return SideMenu(
         key: _sideMenuKey,
         menu: buildMenu(),
-        background: primary,
+        background: red,
         type: SideMenuType.slideNRotate,
         child: Scaffold(
           appBar: AppBar(
@@ -73,7 +73,7 @@ class _ProfileScreenState extends State<ProfileScreen>
             ),
             bottom: TabBar(
               enableFeedback: false,
-              indicatorColor: primary,
+              indicatorColor: red,
               controller: tabController,
               tabs: [
                 tabBuilder("Schedule Meeting"),

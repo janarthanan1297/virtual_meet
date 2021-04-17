@@ -115,7 +115,7 @@ class _JoinMeetingScreenState extends State<JoinMeetingScreen> {
                 length: 6,
                 onChanged: (value) {},
                 animationType: AnimationType.fade,
-                pinTheme: PinTheme(shape: PinCodeFieldShape.underline),
+                pinTheme: PinTheme(shape: PinCodeFieldShape.underline,),
                 animationDuration: Duration(microseconds: 300),
               ),
              /*  SizedBox(
