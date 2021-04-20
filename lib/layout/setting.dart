@@ -173,8 +173,15 @@ class _SettingState extends State<SettingsTwoPage> {
                       width: 60,
                       height: 60,
                       decoration: BoxDecoration(
-                        color: primary,
+                        //color: primary,
                         shape: BoxShape.circle,
+                         boxShadow: [
+                            BoxShadow(
+                                spreadRadius: 2,
+                                blurRadius: 10,
+                                color: Colors.black.withOpacity(0.1),
+                                offset: Offset(0, 10))
+                          ],
                         image: DecorationImage(
                           image: NetworkImage(profile == null ? "https://i.stack.imgur.com/l60Hf.png": profile),
                           fit: BoxFit.cover,

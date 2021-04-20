@@ -28,9 +28,9 @@ class _JoinMeetingScreenState extends State<JoinMeetingScreen> {
   final subjectText = TextEditingController();
   final nameText = TextEditingController(text: "Plugin Test User");
   final emailText = TextEditingController(text: "fake@email.com");
-  bool isVideoOff = true;
+  bool isVideoMuted = true;
   bool isAudioMuted = true;
-  var isAudioOnly = true;
+  var isAudioOnly = false;
   bool isData = false;
 
   @override
@@ -135,12 +135,8 @@ class _JoinMeetingScreenState extends State<JoinMeetingScreen> {
               ),
               CheckboxListTile(
                 activeColor: primary,
-                value: isVideoOff,
-                onChanged: (val) {
-                  setState(() {
-                    isVideoOff = val;
-                  });
-                },
+                value: isVideoMuted,
+                onChanged: _onVideoMutedChanged,
                 title: Text(
                   "Video Off",
                   style: TextStyle(fontSize:18,color: Colors.black),
@@ -152,11 +148,7 @@ class _JoinMeetingScreenState extends State<JoinMeetingScreen> {
               CheckboxListTile(
                 activeColor: primary,
                 value: isAudioMuted,
-                onChanged: (val) {
-                  setState(() {
-                    isAudioMuted = val;
-                  });
-                },
+                onChanged: _onAudioMutedChanged,
                 title: Text(
                   "Audio Muted",
                   style: TextStyle(fontSize:18, color:Colors.black),
@@ -184,6 +176,12 @@ class _JoinMeetingScreenState extends State<JoinMeetingScreen> {
                    height: 50,
                    decoration: BoxDecoration(
                     color: primary, borderRadius: BorderRadius.circular(15),
+                    boxShadow: [
+                      BoxShadow(
+                        color: primary,
+                        blurRadius: 10
+                      )
+                    ]
                     ),
                   child: Center(
                     child: Text(
@@ -216,7 +214,7 @@ class _JoinMeetingScreenState extends State<JoinMeetingScreen> {
 
   _onVideoMutedChanged(bool value) {
     setState(() {
-      isVideoOff = value;
+      isVideoMuted = value;
     });
   }
 
@@ -247,7 +245,7 @@ class _JoinMeetingScreenState extends State<JoinMeetingScreen> {
         ..userEmail = emailText.text
         ..audioOnly = isAudioOnly
         ..audioMuted = isAudioMuted
-        ..videoMuted = isVideoOff
+        ..videoMuted = isVideoMuted
         ..featureFlag = featureFlag;
 
       debugPrint("JitsiMeetingOptions: $options");

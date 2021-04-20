@@ -103,11 +103,23 @@ class _ProfileScreenState extends State<ProfileScreen>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                CircleAvatar(
-                  backgroundImage: NetworkImage(profile == null
-                      ? "https://i.stack.imgur.com/l60Hf.png"
-                      : profile),
-                  radius: 60.0,
+                Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                  //  borderRadius: BorderRadius.circular(25),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.white,
+                        blurRadius: 20
+                      )
+                    ]
+                  ),
+                  child: CircleAvatar(
+                    backgroundImage: NetworkImage(profile == null
+                        ? "https://i.stack.imgur.com/l60Hf.png"
+                        : profile),
+                    radius: 60.0,
+                  ),
                 ),
                 SizedBox(height: 16.0),
                 LText(

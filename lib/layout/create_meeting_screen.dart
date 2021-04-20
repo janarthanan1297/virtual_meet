@@ -30,8 +30,8 @@ class _CreateMeeetingScreenState extends State<CreateMeeetingScreen> {
   final emailText = TextEditingController(text: "fake@email.com");
   TextEditingController _controller1 = TextEditingController();
   TextEditingController _controller2 = TextEditingController();
-  bool isVideoOff = true;
-  var isAudioOnly = true;
+  bool isVideoMuted = true;
+  var isAudioOnly = false;
   bool isAudioMuted = true;
 
   generateMeetingCode() {
@@ -119,7 +119,8 @@ class _CreateMeeetingScreenState extends State<CreateMeeetingScreen> {
                       height: 50,
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(15),
-                          border: Border.all(color: primary, width: 3)),
+                          border: Border.all(color: primary, width: 3)
+                          ),
                       child: Center(
                         child: Text(
                           "Create Code",
@@ -148,13 +149,8 @@ class _CreateMeeetingScreenState extends State<CreateMeeetingScreen> {
                   ),
                   CheckboxListTile(
                     activeColor: primary,
-                    value: isVideoOff,
-                    onChanged: (val) {
-                      setState(() {
-                        isVideoOff = val;
-                        _onVideoMutedChanged;
-                      });
-                    },
+                    value: isVideoMuted,
+                    onChanged: _onVideoMutedChanged,
                     title: Text(
                       "Video Off",
                       style: TextStyle(fontSize: 18, color: Colors.black),
@@ -166,12 +162,7 @@ class _CreateMeeetingScreenState extends State<CreateMeeetingScreen> {
                   CheckboxListTile(
                     activeColor: primary,
                     value: isAudioMuted,
-                    onChanged: (val) {
-                      setState(() {
-                        isAudioMuted = val;
-                        _onAudioMutedChanged;
-                      });
-                    },
+                    onChanged: _onAudioMutedChanged,
                     title: Text(
                       "Audio Muted",
                       style: TextStyle(fontSize: 18, color: Colors.black),
@@ -216,7 +207,7 @@ class _CreateMeeetingScreenState extends State<CreateMeeetingScreen> {
                     ),
                   ),
                   SizedBox(
-                    height: 20,
+                    height: 15,
                   ),
                   Text(
                     "You can change these settings in your meeting when you join",
@@ -228,7 +219,7 @@ class _CreateMeeetingScreenState extends State<CreateMeeetingScreen> {
                     thickness: 2.0,
                   ),
                   SizedBox(
-                    height: 15,
+                    height: 05,
                   ),
                   InkWell(
                     onTap: _joinMeeting,
@@ -238,6 +229,12 @@ class _CreateMeeetingScreenState extends State<CreateMeeetingScreen> {
                       decoration: BoxDecoration(
                         color: primary,
                         borderRadius: BorderRadius.circular(15),
+                        boxShadow: [
+                          BoxShadow(
+                            color: primary,
+                            blurRadius: 10
+                          )
+                        ]
                       ),
                       child: Center(
                         child: Text(
@@ -269,7 +266,7 @@ class _CreateMeeetingScreenState extends State<CreateMeeetingScreen> {
 
   _onVideoMutedChanged(bool value) {
     setState(() {
-      isVideoOff = value;
+      isVideoMuted = value;
     });
   }
 
@@ -302,7 +299,7 @@ class _CreateMeeetingScreenState extends State<CreateMeeetingScreen> {
         ..userAvatarURL = profile
         ..audioOnly = isAudioOnly
         ..audioMuted = isAudioMuted
-        ..videoMuted = isVideoOff
+        ..videoMuted = isVideoMuted
         ..featureFlag = featureFlag;
 
       debugPrint("JitsiMeetingOptions: $options");

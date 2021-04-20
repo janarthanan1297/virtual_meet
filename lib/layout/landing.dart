@@ -159,6 +159,12 @@ class _HomePageState extends State<Landing> {
                 decoration: BoxDecoration(
                   color: primary,
                   borderRadius: BorderRadius.circular(15),
+                  boxShadow: [
+                    BoxShadow(
+                      color: primary,
+                      blurRadius: 10
+                    )
+                  ]
                 ),
                 child: Center(
                   child: Text(

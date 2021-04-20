@@ -93,6 +93,12 @@ class _ScheduleState extends State<Schedule> {
                 decoration: BoxDecoration(
                   color: red,
                   borderRadius: BorderRadius.circular(15),
+                  boxShadow: [
+                    BoxShadow(
+                      color: red,
+                      blurRadius: 10
+                    )
+                  ]
                 ),
                 child: Center(
                     child: Row(
