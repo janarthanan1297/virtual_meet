@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications_platform_interface/src/notification_app_launch_details.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'package:virtual_classroom_meet/layout/home.dart';
 import 'package:virtual_classroom_meet/layout/landing.dart';
@@ -23,6 +24,8 @@ class _LoginState extends State<Login> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   bool isLoading = false;
+
+  NotificationAppLaunchDetails notificationAppLaunchDetails;
 
   Future<Null> _login() async {
     try {
@@ -401,7 +404,8 @@ class _LoginState extends State<Login> {
                                   Navigator.pushReplacement(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (context) => HomeScreen()),
+                                        builder: (context) => HomeScreen(
+                                            notificationAppLaunchDetails)),
                                   );
                                 },
                               ))))),
@@ -427,7 +431,8 @@ class _LoginState extends State<Login> {
                                   Navigator.pushReplacement(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (context) => HomeScreen()),
+                                        builder: (context) => HomeScreen(
+                                            notificationAppLaunchDetails)),
                                   );
                                 },
                               ))))),
@@ -473,7 +478,8 @@ class _LoginState extends State<Login> {
               password: passwordController.text.trim());
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => HomeScreen()),
+        MaterialPageRoute(
+            builder: (context) => HomeScreen(notificationAppLaunchDetails)),
       );
     } catch (err) {
       // updated Nov 1, 2020

@@ -77,16 +77,16 @@ class _MeetingScreenState extends State<MeetingScreen>
               indicatorColor: primary,
               controller: tabController,
               tabs: [
-                tabBuilder("Join Meeting"),
                 tabBuilder("Create Meeting"),
+                tabBuilder("Join Meeting"),
               ],
             ),
           ),
           body: TabBarView(
             controller: tabController,
             children: [
-              JoinMeetingScreen(),
               CreateMeeetingScreen(),
+              JoinMeetingScreen(),
             ],
           ),
         ));
@@ -105,24 +105,23 @@ class _MeetingScreenState extends State<MeetingScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                   decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.white,
-                        blurRadius: 20
-                      )
-                    ]
-                  ),
+                  decoration: BoxDecoration(shape: BoxShape.circle, boxShadow: [
+                    BoxShadow(color: Colors.white, blurRadius: 20)
+                  ]),
                   child: CircleAvatar(
-                    backgroundImage: NetworkImage(profile == null ? "https://i.stack.imgur.com/l60Hf.png": profile),
+                    backgroundImage: NetworkImage(profile == null
+                        ? "https://i.stack.imgur.com/l60Hf.png"
+                        : profile),
                     radius: 60.0,
                   ),
                 ),
                 SizedBox(height: 16.0),
                 LText(
                   username,
-                  baseStyle: TextStyle(color: Colors.white,fontSize: 20,fontWeight: FontWeight.bold),
+                  baseStyle: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 20.0),
               ],
@@ -133,9 +132,12 @@ class _MeetingScreenState extends State<MeetingScreen>
               icon: new Icon(Icons.home, color: Colors.white),
               onPressed: () => null,
             ),
-            title: Text('Home',style: TextStyle(color: Colors.white),),
+            title: Text(
+              'Home',
+              style: TextStyle(color: Colors.white),
+            ),
             onTap: () {
-            /*   Navigator.push(
+              /*   Navigator.push(
                 context,
                 MaterialPageRoute(
                     builder: (context) => HomeScreen(username: widget.uid)),
@@ -147,12 +149,15 @@ class _MeetingScreenState extends State<MeetingScreen>
               icon: new Icon(Icons.settings_outlined, color: Colors.white),
               onPressed: () => null,
             ),
-            title: Text('Settings',style: TextStyle(color: Colors.white),),
+            title: Text(
+              'Settings',
+              style: TextStyle(color: Colors.white),
+            ),
             onTap: () {
               Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => SettingsTwoPage()),
-                    );
+                context,
+                MaterialPageRoute(builder: (context) => SettingsTwoPage()),
+              );
             },
           ),
           ListTile(
@@ -160,7 +165,10 @@ class _MeetingScreenState extends State<MeetingScreen>
               icon: new Icon(Icons.logout, color: Colors.white),
               onPressed: () => null,
             ),
-            title: Text('Logout',style: TextStyle(color: Colors.white),),
+            title: Text(
+              'Logout',
+              style: TextStyle(color: Colors.white),
+            ),
             onTap: () async {
               await FirebaseAuth.instance.signOut();
               Navigator.pushReplacement(

@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications_platform_interface/src/notification_app_launch_details.dart';
 import 'package:virtual_classroom_meet/layout/home.dart';
 import 'package:virtual_classroom_meet/layout/setting.dart';
 import 'package:virtual_classroom_meet/res/color.dart';
@@ -27,10 +28,10 @@ class _Feedback extends State<FeedbackPage> {
           return IconButton(
             icon: Icon(Icons.arrow_back_ios),
             onPressed: () {
-             Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => SettingsTwoPage()),
-                    );
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => SettingsTwoPage()),
+              );
             },
           );
         }),
@@ -115,6 +116,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
   String username = FirebaseAuth.instance.currentUser.displayName;
   String profile = FirebaseAuth.instance.currentUser.photoURL;
   String email = FirebaseAuth.instance.currentUser.email;
+
+  NotificationAppLaunchDetails notificationAppLaunchDetails;
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
@@ -128,9 +131,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
           ),
           onPressed: () {
             Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => SettingsTwoPage()),
-                    );
+              context,
+              MaterialPageRoute(builder: (context) => SettingsTwoPage()),
+            );
           },
         ),
       ),
@@ -236,7 +239,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       Navigator.pushReplacement(
                           context,
                           new MaterialPageRoute(
-                              builder: (context) => HomeScreen()));
+                              builder: (context) =>
+                                  HomeScreen(notificationAppLaunchDetails)));
                     },
                     child: Container(
                       width: size.width * 0.40,

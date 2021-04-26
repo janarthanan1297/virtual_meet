@@ -1,9 +1,12 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import "package:flutter/material.dart";
-import 'package:flutter_icons/flutter_icons.dart';
 import 'package:timeline_tile/timeline_tile.dart';
+import 'package:virtual_classroom_meet/layout/home.dart';
 import 'package:virtual_classroom_meet/layout/schedule_meeting.dart';
+import 'package:virtual_classroom_meet/main.dart';
 import 'package:virtual_classroom_meet/res/color.dart';
 
 //import 'package:jitsi_meet/feature_flag/feature_flag_enum.dart';
@@ -23,47 +26,17 @@ class _ScheduleState extends State<Schedule> {
   bool isAudioMuted = true;
   String username = "";
   bool isData = false;
-  String _formattedate;
-  String _formattime;
-
   @override
   void initState() {
     super.initState();
     //getData();
   }
 
-  /* getData() async {
-    var uid = FirebaseAuth.instance.currentUser.uid;
-    DocumentSnapshot data = await userCollection.doc(uid).get();
-    setState(() {
-      username = data["username"];
-      isData = true;
-    });
-  } */
-
-  /* joinMeeting() async {
-    try {
-      Map<FeatureFlagEnum, bool> featureFlags = {
-        FeatureFlagEnum.WELCOME_PAGE_ENABLED: false,
-      };
-      if (Platform.isAndroid) {
-        featureFlags[FeatureFlagEnum.CALL_INTEGRATION_ENABLED] = false;
-      } else if (Platform.isIOS) {
-        featureFlags[FeatureFlagEnum.PIP_ENABLED] = false;
-      }
-
-      var options = JitsiMeetingOptions()
-        ..room = roomController.text // Required, spaces will be trimmed
-        ..userDisplayName = _controller.text == "" ? username : _controller.text
-        ..audioMuted = isAudioMuted
-        ..videoMuted = isVideoOff
-        ..featureFlag.addPeopleEnabled;
-
-      await JitsiMeet.joinMeeting(options);
-    } catch (err) {
-      print(err);
-    }
-  } */
+  @override
+  void dispose() {
+    selectNotificationSubject.close();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -81,25 +54,20 @@ class _ScheduleState extends State<Schedule> {
               height: 30,
             ),
             InkWell(
-              onTap: () {
+              onTap: () async {
                 Navigator.push(
                     context,
                     new MaterialPageRoute(
                         builder: (context) => Schedulemeeting()));
+                //await _notification();
               },
               child: Container(
                 width: size.width * 0.60,
                 height: 50,
                 decoration: BoxDecoration(
-                  color: red,
-                  borderRadius: BorderRadius.circular(15),
-                  boxShadow: [
-                    BoxShadow(
-                      color: red,
-                      blurRadius: 10
-                    )
-                  ]
-                ),
+                    color: red,
+                    borderRadius: BorderRadius.circular(15),
+                    boxShadow: [BoxShadow(color: red, blurRadius: 10)]),
                 child: Center(
                     child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -148,8 +116,10 @@ class _ScheduleState extends State<Schedule> {
             Expanded(
               //padding: const EdgeInsets.symmetric(horizontal: 16),
               child: StreamBuilder(
-                  stream:
-                      FirebaseFirestore.instance.collection(email).orderBy('Date',descending: false).snapshots(),
+                  stream: FirebaseFirestore.instance
+                      .collection(email)
+                      .orderBy('Date', descending: false)
+                      .snapshots(),
                   builder: (BuildContext context,
                       AsyncSnapshot<QuerySnapshot> snapshot) {
                     if (!snapshot.hasData) {
@@ -165,8 +135,10 @@ class _ScheduleState extends State<Schedule> {
                         itemBuilder: (c, i) {
                           return TimelineTile(
                             alignment: TimelineAlign.start,
-                            isFirst: i==0? true: false,
-                            isLast: i == snapshot.data.docs.length-1? true: false,
+                            isFirst: i == 0 ? true : false,
+                            isLast: i == snapshot.data.docs.length - 1
+                                ? true
+                                : false,
                             indicatorStyle: IndicatorStyle(
                                 width: 40,
                                 color: red,

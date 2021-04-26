@@ -1,10 +1,14 @@
 import 'package:date_format/date_format.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:uuid/uuid.dart';
+import 'package:virtual_classroom_meet/layout/home.dart';
 import 'package:virtual_classroom_meet/res/color.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+
+import '../main.dart';
 
 class Schedulemeeting extends StatefulWidget {
   @override
@@ -68,7 +72,7 @@ class _SchedulemeetingState extends State<Schedulemeeting> {
         _formattime = _time;
         _formattime = formatDate(
             DateTime(2019, 08, 1, selectedTime.hour, selectedTime.minute),
-            [hh, ':', nn, " ", am]).toString();
+            [HH, ':', nn]).toString();
       });
   }
 
@@ -131,9 +135,7 @@ class _SchedulemeetingState extends State<Schedulemeeting> {
   }
 
   upload() async {
-    await FirebaseFirestore.instance
-        .collection('$email')
-        .add({
+    await FirebaseFirestore.instance.collection('$email').add({
       'Meeting Name': emailController.text,
       'Date': _formattedate,
       'Time': _formattime,
@@ -144,19 +146,55 @@ class _SchedulemeetingState extends State<Schedulemeeting> {
     });
   }
 
+  NotificationAppLaunchDetails notificationAppLaunchDetails;
+
+  Future<void> _notification() async {
+    var scheduledNotificationDateTime =
+        DateTime.parse(_formattedate + " " + _formattime)
+            .add(Duration(seconds: 0));
+    final AndroidNotificationDetails androidPlatformChannelSpecifics =
+        AndroidNotificationDetails(
+      'media channel id',
+      'media channel name',
+      'media channel description',
+      largeIcon: const DrawableResourceAndroidBitmap('notification'),
+      sound: RawResourceAndroidNotificationSound('slow_spring_board'),
+      playSound: true,
+      styleInformation: const MediaStyleInformation(),
+    );
+    final NotificationDetails platformChannelSpecifics =
+        NotificationDetails(android: androidPlatformChannelSpecifics);
+    await flutterLocalNotificationsPlugin.schedule(
+        0,
+        'Notification title',
+        'notification body',
+        scheduledNotificationDateTime,
+        platformChannelSpecifics);
+  }
+
+  void _configureSelectNotificationSubject() {
+    selectNotificationSubject.stream.listen((String payload) async {
+      await Navigator.pushReplacement(
+          context,
+          new MaterialPageRoute(
+              builder: (context) => HomeScreen(notificationAppLaunchDetails)));
+    });
+  }
+
   @override
   void initState() {
     super.initState();
     _selectdate(context);
+    _configureSelectNotificationSubject();
     _formattime = formatDate(
         DateTime(2019, 08, 1, DateTime.now().hour, DateTime.now().minute),
-        [hh, ':', nn, " ", am]).toString();
+        [HH, ':', nn]).toString();
   }
 
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
-    _formattedate = new DateFormat.yMMMd().format(_currentdate);
+    _formattedate = new DateFormat('yyyy-MM-dd').format(_currentdate);
     _endrepeat = new DateFormat.yMMMd().format(_currentdate);
     return Scaffold(
       backgroundColor: Colors.grey[200],
@@ -492,6 +530,7 @@ class _SchedulemeetingState extends State<Schedulemeeting> {
                     InkWell(
                       onTap: () {
                         upload();
+                        _notification();
                         Navigator.pop(context);
                         /*  Navigator.pushReplacement(
                     context,

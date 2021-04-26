@@ -1,12 +1,19 @@
 import 'package:bubble_bottom_bar/bubble_bottom_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import "package:flutter/material.dart";
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:virtual_classroom_meet/layout/ProfileScreen.dart';
 import 'package:virtual_classroom_meet/layout/meeting_screen.dart';
 import 'package:virtual_classroom_meet/layout/setting.dart';
 import 'package:virtual_classroom_meet/res/color.dart';
 
 class HomeScreen extends StatefulWidget {
+  const HomeScreen(
+    this.notificationAppLaunchDetails, {
+    Key key,
+  }) : super(key: key);
+  static const String routeName = '/HomePage';
+  final NotificationAppLaunchDetails notificationAppLaunchDetails;
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
@@ -14,7 +21,10 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   //String username = FirebaseAuth.instance.currentUser.displayName;
   int page = 0;
-  List pageOptions = [MeetingScreen(), ProfileScreen(),];
+  List pageOptions = [
+    MeetingScreen(),
+    ProfileScreen(),
+  ];
 
   void changePage(int index) {
     setState(() {

@@ -112,6 +112,7 @@ class _SettingState extends State<Settings> {
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications_platform_interface/src/notification_app_launch_details.dart';
 import 'package:virtual_classroom_meet/layout/Feedback.dart';
 import 'package:virtual_classroom_meet/layout/home.dart';
 import 'package:virtual_classroom_meet/main.dart';
@@ -138,20 +139,24 @@ class _SettingState extends State<SettingsTwoPage> {
   final TextStyle greyTExt = TextStyle(
     color: Colors.grey.shade600,
   );
+
+  NotificationAppLaunchDetails notificationAppLaunchDetails;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
         leading: IconButton(
-              icon: Icon(Icons.arrow_back_ios),
-              onPressed: () {
-               Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => HomeScreen()),
-                    );
-              },
-            ),
+          icon: Icon(Icons.arrow_back_ios),
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                  builder: (context) =>
+                      HomeScreen(notificationAppLaunchDetails)),
+            );
+          },
+        ),
       ),
       body: Theme(
         data: Theme.of(context).copyWith(
@@ -175,15 +180,17 @@ class _SettingState extends State<SettingsTwoPage> {
                       decoration: BoxDecoration(
                         //color: primary,
                         shape: BoxShape.circle,
-                         boxShadow: [
-                            BoxShadow(
-                                spreadRadius: 2,
-                                blurRadius: 10,
-                                color: Colors.black.withOpacity(0.1),
-                                offset: Offset(0, 10))
-                          ],
+                        boxShadow: [
+                          BoxShadow(
+                              spreadRadius: 2,
+                              blurRadius: 10,
+                              color: Colors.black.withOpacity(0.1),
+                              offset: Offset(0, 10))
+                        ],
                         image: DecorationImage(
-                          image: NetworkImage(profile == null ? "https://i.stack.imgur.com/l60Hf.png": profile),
+                          image: NetworkImage(profile == null
+                              ? "https://i.stack.imgur.com/l60Hf.png"
+                              : profile),
                           fit: BoxFit.cover,
                         ),
                         border: Border.all(
@@ -238,8 +245,8 @@ class _SettingState extends State<SettingsTwoPage> {
                     color: Colors.grey,
                   ),
                   onTap: () {
-                  Navigator.of(context).push(MaterialPageRoute(
-                builder: (BuildContext context) => EditProfilePage()));
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (BuildContext context) => EditProfilePage()));
                   },
                 ),
                 SwitchListTile(

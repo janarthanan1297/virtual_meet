@@ -42,6 +42,8 @@ dependencies:
   fluttertoast: ^7.1.4
   share: ^2.0.1
   firebase_dynamic_links: ^0.6.3
+  flutter_local_notifications:
+  rxdart: ^0.26.0-nullsafety.1
   firebase_messaging: 
   firebase_core :
   cloud_firestore:

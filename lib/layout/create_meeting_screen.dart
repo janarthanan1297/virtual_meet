@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter_local_notifications_platform_interface/src/notification_app_launch_details.dart';
 import 'package:virtual_classroom_meet/layout/home.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import "package:flutter/material.dart";
@@ -33,6 +34,8 @@ class _CreateMeeetingScreenState extends State<CreateMeeetingScreen> {
   bool isVideoMuted = true;
   var isAudioOnly = false;
   bool isAudioMuted = true;
+
+  NotificationAppLaunchDetails notificationAppLaunchDetails;
 
   generateMeetingCode() {
     setState(() {
@@ -119,8 +122,7 @@ class _CreateMeeetingScreenState extends State<CreateMeeetingScreen> {
                       height: 50,
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(15),
-                          border: Border.all(color: primary, width: 3)
-                          ),
+                          border: Border.all(color: primary, width: 3)),
                       child: Center(
                         child: Text(
                           "Create Code",
@@ -175,8 +177,8 @@ class _CreateMeeetingScreenState extends State<CreateMeeetingScreen> {
                     onTap: () {
                       Share.share(
                         'click the following link to join the meeting: https://virtualclassroommeet.page.link/join-meet \n' +
-                        '============================ \n'
-                        ' Meeting Code : $code',
+                            '============================ \n'
+                                ' Meeting Code : $code',
                         subject: 'Look what I made!',
                       );
                     },
@@ -227,15 +229,11 @@ class _CreateMeeetingScreenState extends State<CreateMeeetingScreen> {
                       width: size.width * 0.60,
                       height: 50,
                       decoration: BoxDecoration(
-                        color: primary,
-                        borderRadius: BorderRadius.circular(15),
-                        boxShadow: [
-                          BoxShadow(
-                            color: primary,
-                            blurRadius: 10
-                          )
-                        ]
-                      ),
+                          color: primary,
+                          borderRadius: BorderRadius.circular(15),
+                          boxShadow: [
+                            BoxShadow(color: primary, blurRadius: 10)
+                          ]),
                       child: Center(
                         child: Text(
                           'Create Meeting',
@@ -311,12 +309,13 @@ class _CreateMeeetingScreenState extends State<CreateMeeetingScreen> {
           debugPrint("${options.room} joined with message: $message");
         }, onConferenceTerminated: ({message}) {
           Fluttertoast.showToast(
-              msg: 'success',
+              msg: 'Meeting Ended',
               toastLength: Toast.LENGTH_SHORT,
               gravity: ToastGravity.BOTTOM);
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => HomeScreen()),
+            MaterialPageRoute(
+                builder: (context) => HomeScreen(notificationAppLaunchDetails)),
           );
           debugPrint("${options.room} terminated with message: $message");
         }, onPictureInPictureWillEnter: ({message}) {

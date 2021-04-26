@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications_platform_interface/src/notification_app_launch_details.dart';
 import 'package:virtual_classroom_meet/layout/home.dart';
 import 'package:virtual_classroom_meet/layout/landing.dart';
 import 'package:virtual_classroom_meet/res/animation.dart';
@@ -20,6 +21,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
   TextEditingController nameController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   TextEditingController retypePasswordController = TextEditingController();
+
+  NotificationAppLaunchDetails notificationAppLaunchDetails;
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
@@ -318,7 +321,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
         user.updateProfile(displayName: nameController.text.trim());
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => HomeScreen()),
+          MaterialPageRoute(
+              builder: (context) => HomeScreen(notificationAppLaunchDetails)),
         );
       }
     } catch (err) {
