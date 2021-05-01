@@ -163,7 +163,7 @@ class _ScheduleState extends State<Schedule> {
                                                 'Today',
                                                 style: TextStyle(
                                                     fontSize: 18,
-                                                    color: Colors.grey[600]),
+                                                    color: red),
                                               )
                                             : Text(
                                                 snapshot.data.docs[i]["date"]
