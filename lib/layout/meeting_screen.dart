@@ -77,16 +77,16 @@ class _MeetingScreenState extends State<MeetingScreen>
               indicatorColor: primary,
               controller: tabController,
               tabs: [
-                tabBuilder("Create Meeting"),
                 tabBuilder("Join Meeting"),
+                tabBuilder("Create Meeting"),
               ],
             ),
           ),
           body: TabBarView(
             controller: tabController,
             children: [
-              CreateMeeetingScreen(),
               JoinMeetingScreen(),
+              CreateMeeetingScreen(),
             ],
           ),
         ));

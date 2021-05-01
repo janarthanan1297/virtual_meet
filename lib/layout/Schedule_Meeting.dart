@@ -1,14 +1,21 @@
+import 'dart:io';
+
 import 'package:date_format/date_format.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:jitsi_meet/feature_flag/feature_flag.dart';
+import 'package:jitsi_meet/jitsi_meet.dart';
+import 'package:jitsi_meet/jitsi_meeting_listener.dart';
+import 'package:jitsi_meet/room_name_constraint.dart';
+import 'package:jitsi_meet/room_name_constraint_type.dart';
 import 'package:uuid/uuid.dart';
 import 'package:virtual_classroom_meet/layout/home.dart';
 import 'package:virtual_classroom_meet/res/color.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
-import '../main.dart';
+import 'package:virtual_classroom_meet/main.dart';
 
 class Schedulemeeting extends StatefulWidget {
   @override
@@ -26,7 +33,9 @@ final List<String> countries = [
 
 class _SchedulemeetingState extends State<Schedulemeeting> {
   String _formattedate;
+  String _formattedate2;
   String _formattime;
+  String _formattime2;
   String _hour, _minute, _time;
   String _radioval = 'Never';
   String _endrepeat = 'Never';
@@ -37,8 +46,17 @@ class _SchedulemeetingState extends State<Schedulemeeting> {
   var isVis = false;
   TimeOfDay selectedTime = TimeOfDay.now();
   DateTime _currentdate = new DateTime.now();
+  String username = FirebaseAuth.instance.currentUser.displayName;
   String email = FirebaseAuth.instance.currentUser.email;
+  String profile = FirebaseAuth.instance.currentUser.photoURL;
   TextEditingController emailController = TextEditingController();
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+  final serverText = TextEditingController();
+  final roomText = TextEditingController(text: "plugintestroom");
+  final nameText = TextEditingController(text: "Plugin Test User");
+  final emailText = TextEditingController(text: "fake@email.com");
+  var isAudioOnly = false;
 
   Future<Null> _selectdate(BuildContext context) async {
     final DateTime _seldate = await showDatePicker(
@@ -73,6 +91,9 @@ class _SchedulemeetingState extends State<Schedulemeeting> {
         _formattime = formatDate(
             DateTime(2019, 08, 1, selectedTime.hour, selectedTime.minute),
             [HH, ':', nn]).toString();
+        _formattime2 = formatDate(
+            DateTime(2019, 08, 1, selectedTime.hour, selectedTime.minute),
+            [hh, ':', nn, " ", am]).toString();
       });
   }
 
@@ -138,7 +159,9 @@ class _SchedulemeetingState extends State<Schedulemeeting> {
     await FirebaseFirestore.instance.collection('$email').add({
       'Meeting Name': emailController.text,
       'Date': _formattedate,
+      'date': _formattedate2,
       'Time': _formattime,
+      'time': _formattime2,
       'Repeat': _radioval,
       'Code': code,
       'video': isVideoOff,
@@ -166,35 +189,48 @@ class _SchedulemeetingState extends State<Schedulemeeting> {
         NotificationDetails(android: androidPlatformChannelSpecifics);
     await flutterLocalNotificationsPlugin.schedule(
         0,
-        'Notification title',
-        'notification body',
+        emailController.text,
+        'Meeting Code:' + code,
         scheduledNotificationDateTime,
-        platformChannelSpecifics);
+        platformChannelSpecifics,
+        androidAllowWhileIdle: true);
   }
 
-  void _configureSelectNotificationSubject() {
-    selectNotificationSubject.stream.listen((String payload) async {
-      await Navigator.pushReplacement(
-          context,
-          new MaterialPageRoute(
-              builder: (context) => HomeScreen(notificationAppLaunchDetails)));
-    });
+  Future onSelectNotification(String payload) {
+    _joinMeeting();
   }
 
   @override
   void initState() {
     super.initState();
+    var initializationSettingsAndroid =
+        AndroidInitializationSettings('flutter_devs');
+    var initializationSettingsIOs = IOSInitializationSettings();
+    var initSetttings = InitializationSettings(
+        android: initializationSettingsAndroid, iOS: initializationSettingsIOs);
+    flutterLocalNotificationsPlugin.initialize(initSetttings,
+        onSelectNotification: onSelectNotification);
     _selectdate(context);
-    _configureSelectNotificationSubject();
     _formattime = formatDate(
         DateTime(2019, 08, 1, DateTime.now().hour, DateTime.now().minute),
         [HH, ':', nn]).toString();
+    _formattime2 = formatDate(
+        DateTime(2019, 08, 1, DateTime.now().hour, DateTime.now().minute),
+        [hh, ':', nn, " ", am]).toString();
+    JitsiMeet.addListener(JitsiMeetingListener(
+        onConferenceWillJoin: _onConferenceWillJoin,
+        onConferenceJoined: _onConferenceJoined,
+        onConferenceTerminated: _onConferenceTerminated,
+        onPictureInPictureWillEnter: _onPictureInPictureWillEnter,
+        onPictureInPictureTerminated: _onPictureInPictureTerminated,
+        onError: _onError));
   }
 
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
     _formattedate = new DateFormat('yyyy-MM-dd').format(_currentdate);
+    _formattedate2 = new DateFormat.yMMMd().format(_currentdate);
     _endrepeat = new DateFormat.yMMMd().format(_currentdate);
     return Scaffold(
       backgroundColor: Colors.grey[200],
@@ -289,7 +325,7 @@ class _SchedulemeetingState extends State<Schedulemeeting> {
                                 primary: Colors.white,
                                 onPrimary: Colors.black45,
                               ),
-                              child: Text('$_formattedate '),
+                              child: Text('$_formattedate2 '),
                             ),
                             Icon(
                               Icons.arrow_forward_ios,
@@ -324,7 +360,7 @@ class _SchedulemeetingState extends State<Schedulemeeting> {
                                 primary: Colors.white,
                                 onPrimary: Colors.black45,
                               ),
-                              child: Text('$_formattime '),
+                              child: Text('$_formattime2 '),
                             ),
                             Icon(
                               Icons.arrow_forward_ios,
@@ -498,11 +534,7 @@ class _SchedulemeetingState extends State<Schedulemeeting> {
                     CheckboxListTile(
                       activeColor: primary,
                       value: isVideoOff,
-                      onChanged: (val) {
-                        setState(() {
-                          isVideoOff = val;
-                        });
-                      },
+                      onChanged: _onVideoMutedChanged,
                       title: Text(
                         "Video Off",
                         style: TextStyle(fontSize: 18, color: Colors.black),
@@ -514,11 +546,7 @@ class _SchedulemeetingState extends State<Schedulemeeting> {
                     CheckboxListTile(
                       activeColor: primary,
                       value: isAudioMuted,
-                      onChanged: (val) {
-                        setState(() {
-                          isAudioMuted = val;
-                        });
-                      },
+                      onChanged: _onAudioMutedChanged,
                       title: Text(
                         "Audio Muted",
                         style: TextStyle(fontSize: 18, color: Colors.black),
@@ -532,10 +560,6 @@ class _SchedulemeetingState extends State<Schedulemeeting> {
                         upload();
                         _notification();
                         Navigator.pop(context);
-                        /*  Navigator.pushReplacement(
-                    context,
-                    new MaterialPageRoute(
-                        builder: (context) => SignUpScreen())); */
                       },
                       child: Container(
                         width: size.width * 0.60,
@@ -563,5 +587,125 @@ class _SchedulemeetingState extends State<Schedulemeeting> {
         ),
       )),
     );
+  }
+
+  _onAudioOnlyChanged(bool value) {
+    setState(() {
+      isAudioOnly = value;
+    });
+  }
+
+  _onAudioMutedChanged(bool value) {
+    setState(() {
+      isAudioMuted = value;
+    });
+  }
+
+  _onVideoMutedChanged(bool value) {
+    setState(() {
+      isVideoOff = value;
+    });
+  }
+
+  _joinMeeting() async {
+    String serverUrl =
+        serverText.text?.trim()?.isEmpty ?? "" ? null : serverText.text;
+
+    try {
+      FeatureFlag featureFlag = FeatureFlag();
+      featureFlag.welcomePageEnabled = false;
+      featureFlag.meetingPasswordEnabled = true;
+      featureFlag.inviteEnabled = false;
+      // Here is an example, disabling features for each platform
+      if (Platform.isAndroid) {
+        // Disable ConnectionService usage on Android to avoid issues (see README)
+        featureFlag.callIntegrationEnabled = false;
+      } else if (Platform.isIOS) {
+        // Disable PIP on iOS as it looks weird
+        featureFlag.pipEnabled = false;
+      }
+      featureFlag.resolution = FeatureFlagVideoResolution.MD_RESOLUTION;
+
+      // Define meetings options here
+      var options = JitsiMeetingOptions()
+        ..room = code
+        ..serverURL = serverUrl
+        ..subject = emailController.text + "  code-" + code
+        ..userDisplayName = username
+        ..userEmail = email
+        ..userAvatarURL = profile
+        ..audioOnly = isAudioOnly
+        ..audioMuted = isAudioMuted
+        ..videoMuted = isVideoOff
+        ..featureFlag = featureFlag;
+
+      debugPrint("JitsiMeetingOptions: $options");
+      await JitsiMeet.joinMeeting(
+        options,
+        listener: JitsiMeetingListener(onConferenceWillJoin: ({message}) {
+          debugPrint("${options.room} will join with message: $message");
+        }, onConferenceJoined: ({message}) {
+          debugPrint("${options.room} joined with message: $message");
+        }, onConferenceTerminated: ({message}) {
+          Fluttertoast.showToast(
+              msg: 'Meeting Ended',
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.BOTTOM);
+          Navigator.pop(
+            context,
+            MaterialPageRoute(
+                builder: (context) => HomeScreen(notificationAppLaunchDetails)),
+          );
+          debugPrint("${options.room} terminated with message: $message");
+        }, onPictureInPictureWillEnter: ({message}) {
+          debugPrint("${options.room} entered PIP mode with message: $message");
+        }, onPictureInPictureTerminated: ({message}) {
+          debugPrint("${options.room} exited PIP mode with message: $message");
+        }),
+        // by default, plugin default constraints are used
+        //roomNameConstraints: new Map(), // to disable all constraints
+        //roomNameConstraints: customContraints, // to use your own constraint(s)
+      );
+    } catch (error) {
+      debugPrint("error: $error");
+    }
+  }
+
+  static final Map<RoomNameConstraintType, RoomNameConstraint>
+      customContraints = {
+    RoomNameConstraintType.MAX_LENGTH: new RoomNameConstraint((value) {
+      return value.trim().length <= 50;
+    }, "Maximum room name length should be 30."),
+    RoomNameConstraintType.FORBIDDEN_CHARS: new RoomNameConstraint((value) {
+      return RegExp(r"[$€£]+", caseSensitive: false, multiLine: false)
+              .hasMatch(value) ==
+          false;
+    }, "Currencies characters aren't allowed in room names."),
+  };
+
+  void _onConferenceWillJoin({message}) {
+    debugPrint("_onConferenceWillJoin broadcasted with message: $message");
+  }
+
+  void _onConferenceJoined({message}) {
+    debugPrint("_onConferenceJoined broadcasted with message: $message");
+  }
+
+  void _onConferenceTerminated({message}) {
+    debugPrint("_onConferenceTerminated broadcasted with message: $message");
+  }
+
+  void _onPictureInPictureWillEnter({message}) {
+    debugPrint(
+        "_onPictureInPictureWillEnter broadcasted with message: $message");
+  }
+
+  void _onPictureInPictureTerminated({message}) {
+    debugPrint(
+        "_onPictureInPictureTerminated broadcasted with message: $message");
+  }
+
+  _onError(error) {
+    debugPrint("_onError broadcasted: $error");
   }
 }

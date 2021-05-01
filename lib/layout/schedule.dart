@@ -1,13 +1,10 @@
-import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import "package:flutter/material.dart";
-import 'package:timeline_tile/timeline_tile.dart';
-import 'package:virtual_classroom_meet/layout/home.dart';
 import 'package:virtual_classroom_meet/layout/schedule_meeting.dart';
-import 'package:virtual_classroom_meet/main.dart';
+import 'package:virtual_classroom_meet/layout/schedule_edit.dart';
 import 'package:virtual_classroom_meet/res/color.dart';
+import 'package:intl/intl.dart';
 
 //import 'package:jitsi_meet/feature_flag/feature_flag_enum.dart';
 //import 'package:jitsi_meet/jitsi_meet.dart';
@@ -24,18 +21,22 @@ class _ScheduleState extends State<Schedule> {
   String email = FirebaseAuth.instance.currentUser.email;
   bool isVideoOff = true;
   bool isAudioMuted = true;
+  String _formattedate;
   String username = "";
   bool isData = false;
+  int length;
+  String date;
+  DateTime _date;
+  DateTime _currentdate = new DateTime.now();
+  DateTime val;
+  bool today;
+
   @override
   void initState() {
     super.initState();
+    _formattedate = new DateFormat('yyyy-MM-dd').format(_currentdate);
+    val = DateTime.parse(_formattedate);
     //getData();
-  }
-
-  @override
-  void dispose() {
-    selectNotificationSubject.close();
-    super.dispose();
   }
 
   @override
@@ -93,17 +94,6 @@ class _ScheduleState extends State<Schedule> {
             SizedBox(
               height: 20,
             ),
-            Container(
-              width: size.width,
-              height: 30,
-              color: Colors.grey[300],
-              child: Padding(
-                  padding: EdgeInsets.only(left: 15, top: 5),
-                  child: Text(
-                    "Today",
-                    style: TextStyle(fontSize: 18, color: Colors.grey[600]),
-                  )),
-            ),
             /*  Container(
                 width: size.width,
                // height: size.height,
@@ -113,83 +103,174 @@ class _ScheduleState extends State<Schedule> {
                   style: TextStyle(fontSize:20,color: Colors.black),
                   )),
               ), */
+
             Expanded(
-              //padding: const EdgeInsets.symmetric(horizontal: 16),
               child: StreamBuilder(
                   stream: FirebaseFirestore.instance
                       .collection(email)
-                      .orderBy('Date', descending: false)
+                      .orderBy('Time', descending: true)
                       .snapshots(),
                   builder: (BuildContext context,
                       AsyncSnapshot<QuerySnapshot> snapshot) {
                     if (!snapshot.hasData) {
-                      return Text(
+                      return Container();
+                      /* return Text(
                         "No Scheduled Meetings",
                         style: TextStyle(fontSize: 20, color: Colors.black),
-                      );
+                      ); */
                     }
-                    return Container(
-                      padding: EdgeInsets.all(16),
-                      child: ListView.builder(
-                        itemCount: snapshot.data.docs.length,
-                        itemBuilder: (c, i) {
-                          return TimelineTile(
-                            alignment: TimelineAlign.start,
-                            isFirst: i == 0 ? true : false,
-                            isLast: i == snapshot.data.docs.length - 1
-                                ? true
-                                : false,
-                            indicatorStyle: IndicatorStyle(
-                                width: 40,
-                                color: red,
-                                //padding: const EdgeInsets.all(8),
-                                iconStyle: IconStyle(
-                                  color: Colors.white,
-                                  iconData: Icons.schedule,
-                                )),
-                            beforeLineStyle: const LineStyle(
-                              color: red1,
-                              thickness: 6,
-                            ),
-                            endChild: Card(
+                    length = snapshot.data.docs.length;
+                    for (int i = 0; i < length; i++) {
+                      date = snapshot.data.docs[i]["Date"].toString();
+                      _date =
+                          DateFormat('yyyy-MM-dd', 'en_US').parseLoose(date);
+                      if (_date.isBefore(val)) {
+                        FirebaseFirestore.instance
+                            .collection(email)
+                            .doc(snapshot.data.docs[i].id)
+                            .delete();
+                      } else {
+                        if (_date.isAtSameMomentAs(val)) {
+                          today = true;
+                        }
+                      }
+                    }
+                    return ListView.builder(
+                      itemCount: snapshot.data.docs.length,
+                      itemBuilder: (c, i) {
+                        return Card(
+                          elevation: 2.0,
+                          child: Container(
+                            child: InkWell(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => MeetingDetails(i)),
+                                );
+                              },
                               child: Column(
                                 children: <Widget>[
                                   Container(
-                                    child: Text(
-                                        snapshot.data.docs[i]["Meeting Name"]
-                                            .toString(),
-                                        style: textTheme.headline4),
+                                    width: size.width,
+                                    height: 30,
+                                    color: Colors.grey[300],
+                                    child: Padding(
+                                        padding:
+                                            EdgeInsets.only(left: 15, top: 5),
+                                        child: (today == true)
+                                            ? Text(
+                                                'Today',
+                                                style: TextStyle(
+                                                    fontSize: 18,
+                                                    color: Colors.grey[600]),
+                                              )
+                                            : Text(
+                                                snapshot.data.docs[i]["date"]
+                                                    .toString(),
+                                                style: TextStyle(
+                                                    fontSize: 18,
+                                                    color: Colors.grey[600]),
+                                              )),
+                                  ),
+                                  Row(
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.only(
+                                            left: 15,
+                                            top: 15,
+                                            bottom: 15,
+                                            right: 15),
+                                        child: Container(
+                                          height: 50,
+                                          width: 50,
+                                          decoration: BoxDecoration(
+                                              color: red,
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                    color: red, blurRadius: 03)
+                                              ]),
+                                          alignment: Alignment.center,
+                                          child: Text(
+                                            snapshot.data.docs[i]["time"]
+                                                .toString(),
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 17),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ),
+                                      ),
+                                      Container(
+                                        child: Column(
+                                          children: [
+                                            Text(
+                                                snapshot.data
+                                                    .docs[i]["Meeting Name"]
+                                                    .toString(),
+                                                style: TextStyle(
+                                                    fontSize: 22,
+                                                    fontWeight:
+                                                        FontWeight.bold)),
+                                            Text(
+                                                "Meeting Code - " +
+                                                    snapshot
+                                                        .data.docs[i]["Code"]
+                                                        .toString(),
+                                                style: TextStyle(
+                                                  fontSize: 18,
+                                                )),
+                                          ],
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.only(
+                                          left: 15,
+                                          top: 15,
+                                          bottom: 15,
+                                        ),
+                                        child: Container(
+                                          height: 40,
+                                          width: 80,
+                                          decoration: BoxDecoration(
+                                              color: red,
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                    color: red, blurRadius: 03)
+                                              ]),
+                                          alignment: Alignment.center,
+                                          child: Text(
+                                            'Start',
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 17),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                   Container(
                                     child: const SizedBox(
-                                      height: 8.0,
-                                    ),
-                                  ),
-                                  Container(
-                                    child: Text(
-                                      snapshot.data.docs[i]["Date"].toString() +
-                                          "-" +
-                                          snapshot.data.docs[i]["Time"]
-                                              .toString(),
-                                      style: textTheme.subtitle1,
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ),
-                                  Container(
-                                    child: const SizedBox(
-                                      height: 8.0,
+                                      width: 8.0,
                                     ),
                                   ),
                                 ],
                               ),
                             ),
-                          );
-                        },
-                        physics: BouncingScrollPhysics(),
-                      ),
+                          ),
+                        );
+                      },
+                      physics: BouncingScrollPhysics(),
                     );
                   }),
-            )
+            ),
           ],
         ),
       ),
