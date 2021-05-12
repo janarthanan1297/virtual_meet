@@ -44,10 +44,8 @@ class _Feedback extends State<FeedbackPage> {
           children: [
             Padding(
               padding: const EdgeInsets.only(top: 20, bottom: 30),
-              child: Text(
-                  "We also welcome your ideas, requests or comments. Please enter your feedback here:",
-                  style: TextStyle(
-                      fontSize: 16, fontWeight: FontWeight.w500, color: grey)),
+              child: Text("We also welcome your ideas, requests or comments. Please enter your feedback here:",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: grey)),
             ),
             TextFormField(
               keyboardType: TextInputType.multiline,
@@ -76,10 +74,7 @@ class _Feedback extends State<FeedbackPage> {
             ),
             InkWell(
               onTap: () {
-                Navigator.pushReplacement(
-                    context,
-                    new MaterialPageRoute(
-                        builder: (context) => SettingsTwoPage()));
+                Navigator.pushReplacement(context, new MaterialPageRoute(builder: (context) => SettingsTwoPage()));
               },
               child: Container(
                 width: size.width * 0.75,
@@ -91,10 +86,7 @@ class _Feedback extends State<FeedbackPage> {
                 child: Center(
                   child: Text(
                     "Send",
-                    style: TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white),
+                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: Colors.white),
                   ),
                 ),
               ),
@@ -159,22 +151,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       width: 130,
                       height: 130,
                       decoration: BoxDecoration(
-                          border: Border.all(
-                              width: 4,
-                              color: Theme.of(context).scaffoldBackgroundColor),
-                          boxShadow: [
-                            BoxShadow(
-                                spreadRadius: 2,
-                                blurRadius: 10,
-                                color: Colors.black.withOpacity(0.1),
-                                offset: Offset(0, 10))
-                          ],
+                          border: Border.all(width: 4, color: Theme.of(context).scaffoldBackgroundColor),
+                          boxShadow: [BoxShadow(spreadRadius: 2, blurRadius: 10, color: Colors.black.withOpacity(0.1), offset: Offset(0, 10))],
                           shape: BoxShape.circle,
                           image: DecorationImage(
-                              fit: BoxFit.cover,
-                              image: NetworkImage(profile == null
-                                  ? "https://i.stack.imgur.com/l60Hf.png"
-                                  : profile))),
+                              fit: BoxFit.cover, image: NetworkImage(profile == null ? "https://i.stack.imgur.com/l60Hf.png" : profile))),
                     ),
                     Positioned(
                         bottom: 0,
@@ -219,16 +200,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     child: Container(
                       width: size.width * 0.40,
                       height: 40,
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(15),
-                          border: Border.all(color: primary, width: 3)),
+                      decoration: BoxDecoration(borderRadius: BorderRadius.circular(15), border: Border.all(color: primary, width: 3)),
                       child: Center(
                         child: Text(
                           "CANCEL",
-                          style: TextStyle(
-                              fontSize: 17,
-                              fontWeight: FontWeight.w600,
-                              color: primary),
+                          style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: primary),
                         ),
                       ),
                     ),
@@ -236,26 +212,22 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   SizedBox(width: 01),
                   InkWell(
                     onTap: () {
-                      Navigator.pushReplacement(
-                          context,
-                          new MaterialPageRoute(
-                              builder: (context) =>
-                                  HomeScreen(notificationAppLaunchDetails)));
+                      Navigator.pushReplacement(context, new MaterialPageRoute(builder: (context) => HomeScreen(notificationAppLaunchDetails)));
                     },
                     child: Container(
                       width: size.width * 0.40,
                       height: 40,
-                      decoration: BoxDecoration(
-                        color: primary,
-                        borderRadius: BorderRadius.circular(15),
-                      ),
+                      decoration: BoxDecoration(color: primary, borderRadius: BorderRadius.circular(15), boxShadow: [
+                        BoxShadow(
+                          color: Colors.black26,
+                          blurRadius: 5,
+                          offset: const Offset(0.0, 5.0),
+                        )
+                      ]),
                       child: Center(
                         child: Text(
                           "LOGIN",
-                          style: TextStyle(
-                              fontSize: 17,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white),
+                          style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: Colors.white),
                         ),
                       ),
                     ),
@@ -270,8 +242,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     );
   }
 
-  Widget buildTextField(
-      String labelText, String placeholder, bool isPasswordTextField) {
+  Widget buildTextField(String labelText, String placeholder, bool isPasswordTextField) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 35.0),
       child: TextField(

@@ -11,32 +11,39 @@ import 'package:jitsi_meet/room_name_constraint.dart';
 import 'package:jitsi_meet/room_name_constraint_type.dart';
 import 'package:provider/provider.dart';
 import 'package:share/share.dart';
+import 'package:virtual_classroom_meet/layout/home.dart';
 import 'package:virtual_classroom_meet/res/color.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:virtual_classroom_meet/res/theme.dart';
 
-class MeetingDetails extends StatefulWidget {
-  final int i;
-  MeetingDetails(this.i);
+class JoinMeeting extends StatefulWidget {
+  JoinMeeting(
+    this.payload, {
+    Key key,
+  }) : super(key: key);
+  final String payload;
 
   @override
-  _MeetingDetailsState createState() => _MeetingDetailsState(i);
+  JoinMeetingState createState() => JoinMeetingState();
 }
 
-class _MeetingDetailsState extends State<MeetingDetails> {
-  int i;
-  _MeetingDetailsState(this.i);
+class JoinMeetingState extends State<JoinMeeting> {
+  NotificationAppLaunchDetails notificationAppLaunchDetails;
   bool isVideoOff = true;
   bool isAudioMuted = true;
   bool isVisible = false;
   String code = "";
+  String value;
+  String date;
+  String time;
   String subject;
+  String _payload;
+  int length;
   var isVis = false;
   TimeOfDay selectedTime = TimeOfDay.now();
   String username = FirebaseAuth.instance.currentUser.displayName;
   String email = FirebaseAuth.instance.currentUser.email;
   String profile = FirebaseAuth.instance.currentUser.photoURL;
-
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
   final serverText = TextEditingController();
   final roomText = TextEditingController(text: "plugintestroom");
@@ -54,6 +61,7 @@ class _MeetingDetailsState extends State<MeetingDetails> {
   @override
   void initState() {
     super.initState();
+    _payload = widget.payload;
     JitsiMeet.addListener(JitsiMeetingListener(
         onConferenceWillJoin: _onConferenceWillJoin,
         onConferenceJoined: _onConferenceJoined,
@@ -96,6 +104,7 @@ class _MeetingDetailsState extends State<MeetingDetails> {
                   iconSize: 20,
                   onPressed: () {
                     Navigator.pop(context);
+                    // Navigator.pushReplacement(context, new MaterialPageRoute(builder: (context) => HomeScreen(notificationAppLaunchDetails)));
                   },
                 );
               }),
@@ -107,8 +116,17 @@ class _MeetingDetailsState extends State<MeetingDetails> {
                     if (!snapshot.hasData) {
                       return Container();
                     }
-                    code = snapshot.data.docs[i]["Code"].toString();
-                    subject = snapshot.data.docs[i]["Meeting Name"].toString();
+                    length = snapshot.data.docs.length;
+                    for (int i = 0; i < length; i++) {
+                      value = snapshot.data.docs[i]["Code"].toString();
+                      if (value == _payload) {
+                        code = snapshot.data.docs[i]["Code"].toString();
+                        debugPrint(code);
+                        subject = snapshot.data.docs[i]["Meeting Name"].toString();
+                        date = snapshot.data.docs[i]["date"].toString();
+                        time = snapshot.data.docs[i]["time"].toString();
+                      }
+                    }
                     return SingleChildScrollView(
                         child: Container(
                       child: Column(children: [
@@ -138,7 +156,7 @@ class _MeetingDetailsState extends State<MeetingDetails> {
                                         width: 95,
                                       ),
                                       Text(
-                                        snapshot.data.docs[i]["Meeting Name"].toString(),
+                                        subject,
                                         style: TextStyle(fontSize: 18),
                                       ),
                                     ],
@@ -163,7 +181,7 @@ class _MeetingDetailsState extends State<MeetingDetails> {
                                         width: 100,
                                       ),
                                       Text(
-                                        snapshot.data.docs[i]["date"].toString(),
+                                        date,
                                         style: TextStyle(
                                           fontSize: 18,
                                         ),
@@ -190,7 +208,7 @@ class _MeetingDetailsState extends State<MeetingDetails> {
                                         width: 100,
                                       ),
                                       Text(
-                                        snapshot.data.docs[i]["time"].toString(),
+                                        time,
                                         style: TextStyle(fontSize: 18),
                                       ),
                                     ],
@@ -215,7 +233,7 @@ class _MeetingDetailsState extends State<MeetingDetails> {
                                         width: 32,
                                       ),
                                       Text(
-                                        snapshot.data.docs[i]["Code"].toString(),
+                                        code,
                                         style: TextStyle(fontSize: 18),
                                       ),
                                     ],
@@ -281,8 +299,8 @@ class _MeetingDetailsState extends State<MeetingDetails> {
                         ),
                         InkWell(
                           onTap: () {
-                            Navigator.pop(context);
-                            FirebaseFirestore.instance.collection(email).doc(snapshot.data.docs[i].id).delete().then((_) {
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => HomeScreen(notificationAppLaunchDetails)));
+                            FirebaseFirestore.instance.collection(email).doc(snapshot.data.docs[0].id).delete().then((_) {
                               Fluttertoast.showToast(msg: 'Scheduled Meeting Deleted', toastLength: Toast.LENGTH_SHORT, gravity: ToastGravity.BOTTOM);
                             });
                           },

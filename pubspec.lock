@@ -203,12 +203,19 @@ packages:
     source: hosted
     version: "4.0.1+2"
   flutter_local_notifications_platform_interface:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: flutter_local_notifications_platform_interface
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.0+1"
+  flutter_restart:
+    dependency: "direct main"
+    description:
+      name: flutter_restart
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.3"
   flutter_signin_button:
     dependency: "direct main"
     description:
@@ -234,7 +241,7 @@ packages:
     source: hosted
     version: "7.1.8"
   font_awesome_flutter:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: font_awesome_flutter
       url: "https://pub.dartlang.org"
@@ -303,6 +310,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.6.3"
+  liquid_progress_indicator:
+    dependency: "direct main"
+    description:
+      name: liquid_progress_indicator
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.3.2"
   liquid_ui:
     dependency: "direct main"
     description:
@@ -331,6 +345,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.0"
+  move_to_background:
+    dependency: "direct main"
+    description:
+      name: move_to_background
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.2"
   ndialog:
     dependency: "direct main"
     description:
@@ -353,7 +374,7 @@ packages:
     source: hosted
     version: "1.8.0"
   path_provider:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: path_provider
       url: "https://pub.dartlang.org"

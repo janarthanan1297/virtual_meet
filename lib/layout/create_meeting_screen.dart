@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter_local_notifications_platform_interface/src/notification_app_launch_details.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:virtual_classroom_meet/layout/home.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import "package:flutter/material.dart";
@@ -77,11 +78,11 @@ class _CreateMeeetingScreenState extends State<CreateMeeetingScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   SizedBox(
-                    height: 24,
+                    height: 25,
                   ),
                   Text(
                     "Create a code to create a meeting!",
-                    style: TextStyle(fontSize: 20),
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(
                     height: 10,
@@ -106,30 +107,24 @@ class _CreateMeeetingScreenState extends State<CreateMeeetingScreen> {
                             ),
                             Text(
                               code,
-                              style: montserratStyle(
-                                  30, Colors.red, FontWeight.w700),
+                              style: montserratStyle(30, Colors.red, FontWeight.w700),
                             ),
                           ],
                         )
                       : Container(),
                   SizedBox(
-                    height: 20,
+                    height: 10,
                   ),
                   InkWell(
                     onTap: generateMeetingCode,
                     child: Container(
                       width: size.width * 0.60,
                       height: 50,
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(15),
-                          border: Border.all(color: primary, width: 3)),
+                      decoration: BoxDecoration(borderRadius: BorderRadius.circular(15), border: Border.all(color: primary, width: 3)),
                       child: Center(
                         child: Text(
                           "Create Code",
-                          style: TextStyle(
-                              color: primary,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 17),
+                          style: TextStyle(color: primary, fontWeight: FontWeight.bold, fontSize: 17),
                         ),
                       ),
                     ),
@@ -139,11 +134,23 @@ class _CreateMeeetingScreenState extends State<CreateMeeetingScreen> {
                   ),
                   TextFormField(
                     controller: subjectText,
-                    style: TextStyle(fontSize: 20),
+                    style: Theme.of(context).primaryTextTheme.subtitle2,
                     decoration: InputDecoration(
                       border: OutlineInputBorder(),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: primary,
+                          width: 2.0,
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.grey,
+                          width: 2.0,
+                        ),
+                      ),
                       labelText: "Meeting name *(must)",
-                      labelStyle: TextStyle(fontSize: 15),
+                      labelStyle: Theme.of(context).primaryTextTheme.bodyText2,
                     ),
                   ),
                   SizedBox(
@@ -155,7 +162,7 @@ class _CreateMeeetingScreenState extends State<CreateMeeetingScreen> {
                     onChanged: _onVideoMutedChanged,
                     title: Text(
                       "Video Off",
-                      style: TextStyle(fontSize: 18, color: Colors.black),
+                      style: Theme.of(context).primaryTextTheme.bodyText1,
                     ),
                   ),
                   SizedBox(
@@ -167,7 +174,7 @@ class _CreateMeeetingScreenState extends State<CreateMeeetingScreen> {
                     onChanged: _onAudioMutedChanged,
                     title: Text(
                       "Audio Muted",
-                      style: TextStyle(fontSize: 18, color: Colors.black),
+                      style: Theme.of(context).primaryTextTheme.bodyText1,
                     ),
                   ),
                   SizedBox(
@@ -191,17 +198,20 @@ class _CreateMeeetingScreenState extends State<CreateMeeetingScreen> {
                       child: Row(
                         children: [
                           IconButton(
-                            icon: Icon(
-                              Icons.share,
+                            icon: FaIcon(
+                              FontAwesomeIcons.shareAlt,
                               color: primary,
+                              size: 20,
                             ),
                             onPressed: null,
+                          ),
+                          SizedBox(
+                            width: 05,
                           ),
                           Center(
                             child: Text(
                               'Invite others',
-                              style:
-                                  TextStyle(color: Colors.black, fontSize: 18),
+                              style: Theme.of(context).primaryTextTheme.bodyText1,
                             ),
                           ),
                         ],
@@ -228,19 +238,17 @@ class _CreateMeeetingScreenState extends State<CreateMeeetingScreen> {
                     child: Container(
                       width: size.width * 0.60,
                       height: 50,
-                      decoration: BoxDecoration(
-                          color: primary,
-                          borderRadius: BorderRadius.circular(15),
-                          boxShadow: [
-                            BoxShadow(color: primary, blurRadius: 10)
-                          ]),
+                      decoration: BoxDecoration(color: primary, borderRadius: BorderRadius.circular(15), boxShadow: [
+                        BoxShadow(
+                          color: Colors.black26,
+                          blurRadius: 5,
+                          offset: const Offset(0.0, 5.0),
+                        )
+                      ]),
                       child: Center(
                         child: Text(
                           'Create Meeting',
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 17),
+                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 17),
                         ),
                       ),
                     ),
@@ -269,8 +277,7 @@ class _CreateMeeetingScreenState extends State<CreateMeeetingScreen> {
   }
 
   _joinMeeting() async {
-    String serverUrl =
-        serverText.text?.trim()?.isEmpty ?? "" ? null : serverText.text;
+    String serverUrl = serverText.text?.trim()?.isEmpty ?? "" ? null : serverText.text;
 
     try {
       FeatureFlag featureFlag = FeatureFlag();
@@ -308,14 +315,10 @@ class _CreateMeeetingScreenState extends State<CreateMeeetingScreen> {
         }, onConferenceJoined: ({message}) {
           debugPrint("${options.room} joined with message: $message");
         }, onConferenceTerminated: ({message}) {
-          Fluttertoast.showToast(
-              msg: 'Meeting Ended',
-              toastLength: Toast.LENGTH_SHORT,
-              gravity: ToastGravity.BOTTOM);
+          Fluttertoast.showToast(msg: 'Meeting Ended', toastLength: Toast.LENGTH_SHORT, gravity: ToastGravity.BOTTOM);
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(
-                builder: (context) => HomeScreen(notificationAppLaunchDetails)),
+            MaterialPageRoute(builder: (context) => HomeScreen(notificationAppLaunchDetails)),
           );
           debugPrint("${options.room} terminated with message: $message");
         }, onPictureInPictureWillEnter: ({message}) {
@@ -332,15 +335,12 @@ class _CreateMeeetingScreenState extends State<CreateMeeetingScreen> {
     }
   }
 
-  static final Map<RoomNameConstraintType, RoomNameConstraint>
-      customContraints = {
+  static final Map<RoomNameConstraintType, RoomNameConstraint> customContraints = {
     RoomNameConstraintType.MAX_LENGTH: new RoomNameConstraint((value) {
       return value.trim().length <= 50;
     }, "Maximum room name length should be 30."),
     RoomNameConstraintType.FORBIDDEN_CHARS: new RoomNameConstraint((value) {
-      return RegExp(r"[$€£]+", caseSensitive: false, multiLine: false)
-              .hasMatch(value) ==
-          false;
+      return RegExp(r"[$€£]+", caseSensitive: false, multiLine: false).hasMatch(value) == false;
     }, "Currencies characters aren't allowed in room names."),
   };
 
@@ -357,13 +357,11 @@ class _CreateMeeetingScreenState extends State<CreateMeeetingScreen> {
   }
 
   void _onPictureInPictureWillEnter({message}) {
-    debugPrint(
-        "_onPictureInPictureWillEnter broadcasted with message: $message");
+    debugPrint("_onPictureInPictureWillEnter broadcasted with message: $message");
   }
 
   void _onPictureInPictureTerminated({message}) {
-    debugPrint(
-        "_onPictureInPictureTerminated broadcasted with message: $message");
+    debugPrint("_onPictureInPictureTerminated broadcasted with message: $message");
   }
 
   _onError(error) {

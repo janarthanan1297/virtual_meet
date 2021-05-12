@@ -2,6 +2,8 @@ import 'dart:ui';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import "package:flutter/material.dart";
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:provider/provider.dart';
 import 'package:shrink_sidemenu/shrink_sidemenu.dart';
 import 'package:liquid_ui/liquid_ui.dart';
 import 'package:virtual_classroom_meet/layout/create_meeting_screen.dart';
@@ -9,14 +11,14 @@ import 'package:virtual_classroom_meet/layout/join_meeting_screen.dart';
 import 'package:virtual_classroom_meet/layout/setting.dart';
 import 'package:virtual_classroom_meet/main.dart';
 import 'package:virtual_classroom_meet/res/color.dart';
+import 'package:virtual_classroom_meet/res/theme.dart';
 
 class MeetingScreen extends StatefulWidget {
   @override
   _MeetingScreenState createState() => _MeetingScreenState();
 }
 
-class _MeetingScreenState extends State<MeetingScreen>
-    with SingleTickerProviderStateMixin {
+class _MeetingScreenState extends State<MeetingScreen> with SingleTickerProviderStateMixin {
   TabController tabController;
   final GlobalKey<SideMenuState> _sideMenuKey = GlobalKey<SideMenuState>();
   String username = FirebaseAuth.instance.currentUser.displayName;
@@ -25,16 +27,15 @@ class _MeetingScreenState extends State<MeetingScreen>
     return Container(
       width: 150,
       height: 50,
+      color: Colors.transparent,
       child: Card(
         elevation: 0,
+        color: Colors.transparent,
         borderOnForeground: false,
         child: Center(
           child: Text(
             name,
-            style: TextStyle(
-              fontSize: 15,
-              color: Colors.black,
-            ),
+            style: Theme.of(context).primaryTextTheme.subtitle1,
           ),
         ),
       ),
@@ -56,14 +57,31 @@ class _MeetingScreenState extends State<MeetingScreen>
         type: SideMenuType.slideNRotate,
         child: Scaffold(
           appBar: AppBar(
-            elevation: 0.0,
+            elevation: 7.0,
             title: Text(
               "Virtual Meet",
-              style: TextStyle(fontSize: 20, color: Colors.black),
+              style: Theme.of(context).primaryTextTheme.headline1,
             ),
-            centerTitle: true,
+            actions: [
+              Consumer<ThemeNotifier>(
+                  builder: (context, notifier, child) => IconButton(
+                      icon: notifier.darkTheme
+                          ? Icon(Icons.wb_sunny)
+                          : FaIcon(
+                              FontAwesomeIcons.moon,
+                              size: 20,
+                            ),
+                      onPressed: () => {notifier.toggleTheme()})),
+              SizedBox(
+                width: 07,
+              )
+            ],
+            centerTitle: false,
             leading: IconButton(
-              icon: Icon(Icons.menu),
+              icon: FaIcon(
+                FontAwesomeIcons.bars,
+                size: 20,
+              ),
               onPressed: () {
                 final _state = _sideMenuKey.currentState;
                 if (_state.isOpened)
@@ -105,23 +123,16 @@ class _MeetingScreenState extends State<MeetingScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  decoration: BoxDecoration(shape: BoxShape.circle, boxShadow: [
-                    BoxShadow(color: Colors.white, blurRadius: 20)
-                  ]),
+                  decoration: BoxDecoration(shape: BoxShape.circle, boxShadow: [BoxShadow(color: Colors.white, blurRadius: 15)]),
                   child: CircleAvatar(
-                    backgroundImage: NetworkImage(profile == null
-                        ? "https://i.stack.imgur.com/l60Hf.png"
-                        : profile),
+                    backgroundImage: NetworkImage(profile == null ? "https://i.stack.imgur.com/l60Hf.png" : profile),
                     radius: 60.0,
                   ),
                 ),
                 SizedBox(height: 16.0),
                 LText(
                   username,
-                  baseStyle: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold),
+                  baseStyle: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 20.0),
               ],
@@ -129,7 +140,11 @@ class _MeetingScreenState extends State<MeetingScreen>
           ),
           ListTile(
             leading: new IconButton(
-              icon: new Icon(Icons.home, color: Colors.white),
+              icon: new FaIcon(
+                FontAwesomeIcons.home,
+                color: Colors.white,
+                size: 20,
+              ),
               onPressed: () => null,
             ),
             title: Text(
@@ -146,7 +161,11 @@ class _MeetingScreenState extends State<MeetingScreen>
           ),
           ListTile(
             leading: new IconButton(
-              icon: new Icon(Icons.settings_outlined, color: Colors.white),
+              icon: new FaIcon(
+                FontAwesomeIcons.cog,
+                color: Colors.white,
+                size: 20,
+              ),
               onPressed: () => null,
             ),
             title: Text(
@@ -154,7 +173,7 @@ class _MeetingScreenState extends State<MeetingScreen>
               style: TextStyle(color: Colors.white),
             ),
             onTap: () {
-              Navigator.pushReplacement(
+              Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => SettingsTwoPage()),
               );
@@ -162,7 +181,11 @@ class _MeetingScreenState extends State<MeetingScreen>
           ),
           ListTile(
             leading: new IconButton(
-              icon: new Icon(Icons.logout, color: Colors.white),
+              icon: new FaIcon(
+                FontAwesomeIcons.signOutAlt,
+                color: Colors.white,
+                size: 22,
+              ),
               onPressed: () => null,
             ),
             title: Text(
@@ -171,9 +194,10 @@ class _MeetingScreenState extends State<MeetingScreen>
             ),
             onTap: () async {
               await FirebaseAuth.instance.signOut();
+              Widget initialRoute;
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => MyApp()),
+                MaterialPageRoute(builder: (context) => MyApp(initialRoute)),
               );
             },
           ),

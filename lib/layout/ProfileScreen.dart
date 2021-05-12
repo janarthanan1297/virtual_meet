@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import "package:flutter/material.dart";
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:liquid_ui/liquid_ui.dart';
+import 'package:provider/provider.dart';
 import 'package:shrink_sidemenu/shrink_sidemenu.dart';
 import 'package:virtual_classroom_meet/layout/calender.dart';
 import 'package:virtual_classroom_meet/layout/schedule.dart';
@@ -8,14 +10,14 @@ import 'package:virtual_classroom_meet/layout/meeting_screen.dart';
 import 'package:virtual_classroom_meet/layout/setting.dart';
 import 'package:virtual_classroom_meet/main.dart';
 import 'package:virtual_classroom_meet/res/color.dart';
+import 'package:virtual_classroom_meet/res/theme.dart';
 
 class ProfileScreen extends StatefulWidget {
   @override
   _ProfileScreenState createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen>
-    with SingleTickerProviderStateMixin {
+class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProviderStateMixin {
   TabController tabController;
   final GlobalKey<SideMenuState> _sideMenuKey = GlobalKey<SideMenuState>();
   String username = FirebaseAuth.instance.currentUser.displayName;
@@ -24,16 +26,15 @@ class _ProfileScreenState extends State<ProfileScreen>
     return Container(
       width: 150,
       height: 50,
+      color: Colors.transparent,
       child: Card(
         elevation: 0,
+        color: Colors.transparent,
         borderOnForeground: false,
         child: Center(
           child: Text(
             name,
-            style: TextStyle(
-              fontSize: 15,
-              color: Colors.black,
-            ),
+            style: Theme.of(context).primaryTextTheme.subtitle1,
           ),
         ),
       ),
@@ -55,14 +56,32 @@ class _ProfileScreenState extends State<ProfileScreen>
         type: SideMenuType.slideNRotate,
         child: Scaffold(
           appBar: AppBar(
-            elevation: 0.0,
+            elevation: 7.0,
             title: Text(
               "Virtual Meet",
-              style: TextStyle(fontSize: 20, color: Colors.black),
+              style: Theme.of(context).primaryTextTheme.headline1,
             ),
-            centerTitle: true,
+            actions: [
+              Consumer<ThemeNotifier>(
+                  builder: (context, notifier, child) => IconButton(
+                      icon: notifier.darkTheme
+                          ? Icon(Icons.wb_sunny)
+                          : FaIcon(
+                              FontAwesomeIcons.moon,
+                              size: 20,
+                            ),
+                      onPressed: () => {notifier.toggleTheme()})),
+              SizedBox(
+                width: 07,
+              )
+            ],
+            centerTitle: false,
             leading: IconButton(
-              icon: Icon(Icons.menu),
+              icon: FaIcon(
+                FontAwesomeIcons.bars,
+                // color: Colors.white,
+                size: 20,
+              ),
               onPressed: () {
                 final _state = _sideMenuKey.currentState;
                 if (_state.isOpened)
@@ -76,7 +95,7 @@ class _ProfileScreenState extends State<ProfileScreen>
               indicatorColor: red,
               controller: tabController,
               tabs: [
-                tabBuilder("Schedule Meeting"),
+                tabBuilder("Schedule Meet"),
                 tabBuilder("Calender"),
               ],
             ),
@@ -104,30 +123,18 @@ class _ProfileScreenState extends State<ProfileScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                  //  borderRadius: BorderRadius.circular(25),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.white,
-                        blurRadius: 20
-                      )
-                    ]
-                  ),
+                  decoration: BoxDecoration(shape: BoxShape.circle,
+                      //  borderRadius: BorderRadius.circular(25),
+                      boxShadow: [BoxShadow(color: Colors.white, blurRadius: 15)]),
                   child: CircleAvatar(
-                    backgroundImage: NetworkImage(profile == null
-                        ? "https://i.stack.imgur.com/l60Hf.png"
-                        : profile),
+                    backgroundImage: NetworkImage(profile == null ? "https://i.stack.imgur.com/l60Hf.png" : profile),
                     radius: 60.0,
                   ),
                 ),
                 SizedBox(height: 16.0),
                 LText(
                   username,
-                  baseStyle: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold),
+                  baseStyle: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 20.0),
               ],
@@ -135,7 +142,11 @@ class _ProfileScreenState extends State<ProfileScreen>
           ),
           ListTile(
             leading: new IconButton(
-              icon: new Icon(Icons.home, color: Colors.white),
+              icon: new FaIcon(
+                FontAwesomeIcons.home,
+                color: Colors.white,
+                size: 20,
+              ),
               onPressed: () => null,
             ),
             title: Text(
@@ -152,7 +163,11 @@ class _ProfileScreenState extends State<ProfileScreen>
           ),
           ListTile(
             leading: new IconButton(
-              icon: new Icon(Icons.settings_outlined, color: Colors.white),
+              icon: new FaIcon(
+                FontAwesomeIcons.cog,
+                color: Colors.white,
+                size: 20,
+              ),
               onPressed: () => null,
             ),
             title: Text(
@@ -160,15 +175,19 @@ class _ProfileScreenState extends State<ProfileScreen>
               style: TextStyle(color: Colors.white),
             ),
             onTap: () {
-              Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => SettingsTwoPage()),
-                    );
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => SettingsTwoPage()),
+              );
             },
           ),
           ListTile(
             leading: new IconButton(
-              icon: new Icon(Icons.logout, color: Colors.white),
+              icon: new FaIcon(
+                FontAwesomeIcons.signOutAlt,
+                color: Colors.white,
+                size: 22,
+              ),
               onPressed: () => null,
             ),
             title: Text(
@@ -177,9 +196,10 @@ class _ProfileScreenState extends State<ProfileScreen>
             ),
             onTap: () async {
               await FirebaseAuth.instance.signOut();
+              Widget initialRoute;
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => MyApp()),
+                MaterialPageRoute(builder: (context) => MyApp(initialRoute)),
               );
             },
           ),

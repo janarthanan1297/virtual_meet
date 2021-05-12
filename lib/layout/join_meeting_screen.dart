@@ -1,4 +1,3 @@
-
 import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
@@ -37,7 +36,7 @@ class _JoinMeetingScreenState extends State<JoinMeetingScreen> {
   void initState() {
     super.initState();
     //getData();
-     JitsiMeet.addListener(JitsiMeetingListener(
+    JitsiMeet.addListener(JitsiMeetingListener(
         onConferenceWillJoin: _onConferenceWillJoin,
         onConferenceJoined: _onConferenceJoined,
         onConferenceTerminated: _onConferenceTerminated,
@@ -46,7 +45,7 @@ class _JoinMeetingScreenState extends State<JoinMeetingScreen> {
         onError: _onError));
   }
 
-   @override
+  @override
   void dispose() {
     super.dispose();
     JitsiMeet.removeAllListeners();
@@ -89,11 +88,12 @@ class _JoinMeetingScreenState extends State<JoinMeetingScreen> {
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
     return Scaffold(
-      backgroundColor: Colors.white,
+      // backgroundColor: Colors.white,
       body: Container(
         padding: EdgeInsets.symmetric(
           horizontal: 16,
         ),
+        color: Colors.transparent,
         child: SingleChildScrollView(
           child: Column(
             children: [
@@ -102,23 +102,25 @@ class _JoinMeetingScreenState extends State<JoinMeetingScreen> {
               ),
               Text(
                 "Meet Code",
-                style: TextStyle(fontSize:20),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               SizedBox(
                 height: 20,
               ),
               PinCodeTextField(
                 controller: roomController,
-                backgroundColor: Colors.white,
+                backgroundColor: Colors.transparent,
                 appContext: context,
                 autoDisposeControllers: false,
                 length: 6,
                 onChanged: (value) {},
                 animationType: AnimationType.fade,
-                pinTheme: PinTheme(shape: PinCodeFieldShape.underline,),
+                pinTheme: PinTheme(
+                  shape: PinCodeFieldShape.underline,
+                ),
                 animationDuration: Duration(microseconds: 300),
               ),
-             /*  SizedBox(
+              /*  SizedBox(
                 height: 10,
               ),
               TextFormField(
@@ -139,7 +141,7 @@ class _JoinMeetingScreenState extends State<JoinMeetingScreen> {
                 onChanged: _onVideoMutedChanged,
                 title: Text(
                   "Video Off",
-                  style: TextStyle(fontSize:18,color: Colors.black),
+                  style: Theme.of(context).primaryTextTheme.bodyText1,
                 ),
               ),
               SizedBox(
@@ -151,7 +153,7 @@ class _JoinMeetingScreenState extends State<JoinMeetingScreen> {
                 onChanged: _onAudioMutedChanged,
                 title: Text(
                   "Audio Muted",
-                  style: TextStyle(fontSize:18, color:Colors.black),
+                  style: Theme.of(context).primaryTextTheme.bodyText1,
                 ),
               ),
               SizedBox(
@@ -159,7 +161,7 @@ class _JoinMeetingScreenState extends State<JoinMeetingScreen> {
               ),
               Text(
                 "You can change these settings in your meeting when you join",
-                style: TextStyle(fontSize:15),
+                style: TextStyle(fontSize: 15),
                 textAlign: TextAlign.center,
               ),
               Divider(
@@ -172,25 +174,21 @@ class _JoinMeetingScreenState extends State<JoinMeetingScreen> {
               InkWell(
                 onTap: _joinMeeting,
                 child: Container(
-                   width: size.width * 0.60,
-                   height: 50,
-                   decoration: BoxDecoration(
-                    color: primary, borderRadius: BorderRadius.circular(15),
-                    boxShadow: [
-                      BoxShadow(
-                        color: primary,
-                        blurRadius: 10
-                      )
-                    ]
-                    ),
+                  width: size.width * 0.60,
+                  height: 50,
+                  decoration: BoxDecoration(color: primary, borderRadius: BorderRadius.circular(15), boxShadow: [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 5,
+                      spreadRadius: 01,
+                      offset: const Offset(0.0, 5.0),
+                    )
+                  ]),
                   child: Center(
                     child: Text(
-                          'Join Meeting',
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 17),
-                        ),
+                      'Join Meeting',
+                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 17),
+                    ),
                   ),
                 ),
               ),
@@ -200,6 +198,7 @@ class _JoinMeetingScreenState extends State<JoinMeetingScreen> {
       ),
     );
   }
+
   _onAudioOnlyChanged(bool value) {
     setState(() {
       isAudioOnly = value;
@@ -219,8 +218,7 @@ class _JoinMeetingScreenState extends State<JoinMeetingScreen> {
   }
 
   _joinMeeting() async {
-    String serverUrl =
-        serverText.text?.trim()?.isEmpty ?? "" ? null : serverText.text;
+    String serverUrl = serverText.text?.trim()?.isEmpty ?? "" ? null : serverText.text;
 
     try {
       FeatureFlag featureFlag = FeatureFlag();
@@ -271,15 +269,12 @@ class _JoinMeetingScreenState extends State<JoinMeetingScreen> {
     }
   }
 
-  static final Map<RoomNameConstraintType, RoomNameConstraint>
-      customContraints = {
+  static final Map<RoomNameConstraintType, RoomNameConstraint> customContraints = {
     RoomNameConstraintType.MAX_LENGTH: new RoomNameConstraint((value) {
       return value.trim().length <= 50;
     }, "Maximum room name length should be 30."),
     RoomNameConstraintType.FORBIDDEN_CHARS: new RoomNameConstraint((value) {
-      return RegExp(r"[$€£]+", caseSensitive: false, multiLine: false)
-              .hasMatch(value) ==
-          false;
+      return RegExp(r"[$€£]+", caseSensitive: false, multiLine: false).hasMatch(value) == false;
     }, "Currencies characters aren't allowed in room names."),
   };
 
@@ -296,13 +291,11 @@ class _JoinMeetingScreenState extends State<JoinMeetingScreen> {
   }
 
   void _onPictureInPictureWillEnter({message}) {
-    debugPrint(
-        "_onPictureInPictureWillEnter broadcasted with message: $message");
+    debugPrint("_onPictureInPictureWillEnter broadcasted with message: $message");
   }
 
   void _onPictureInPictureTerminated({message}) {
-    debugPrint(
-        "_onPictureInPictureTerminated broadcasted with message: $message");
+    debugPrint("_onPictureInPictureTerminated broadcasted with message: $message");
   }
 
   _onError(error) {

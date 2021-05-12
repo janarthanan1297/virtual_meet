@@ -11,21 +11,24 @@ import 'package:jitsi_meet/room_name_constraint.dart';
 import 'package:jitsi_meet/room_name_constraint_type.dart';
 import 'package:provider/provider.dart';
 import 'package:share/share.dart';
+import 'package:virtual_classroom_meet/layout/home.dart';
 import 'package:virtual_classroom_meet/res/color.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:virtual_classroom_meet/res/theme.dart';
 
-class MeetingDetails extends StatefulWidget {
+class CalendarEdit extends StatefulWidget {
   final int i;
-  MeetingDetails(this.i);
+  CalendarEdit(this.i);
 
   @override
-  _MeetingDetailsState createState() => _MeetingDetailsState(i);
+  CalendarEditState createState() => CalendarEditState(i);
 }
 
-class _MeetingDetailsState extends State<MeetingDetails> {
+class CalendarEditState extends State<CalendarEdit> {
   int i;
-  _MeetingDetailsState(this.i);
+
+  NotificationAppLaunchDetails notificationAppLaunchDetails;
+  CalendarEditState(this.i);
   bool isVideoOff = true;
   bool isAudioMuted = true;
   bool isVisible = false;
@@ -281,7 +284,7 @@ class _MeetingDetailsState extends State<MeetingDetails> {
                         ),
                         InkWell(
                           onTap: () {
-                            Navigator.pop(context);
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => HomeScreen(notificationAppLaunchDetails)));
                             FirebaseFirestore.instance.collection(email).doc(snapshot.data.docs[i].id).delete().then((_) {
                               Fluttertoast.showToast(msg: 'Scheduled Meeting Deleted', toastLength: Toast.LENGTH_SHORT, gravity: ToastGravity.BOTTOM);
                             });
@@ -304,18 +307,21 @@ class _MeetingDetailsState extends State<MeetingDetails> {
             )));
   }
 
+  // ignore: unused_element
   _onAudioOnlyChanged(bool value) {
     setState(() {
       isAudioOnly = value;
     });
   }
 
+  // ignore: unused_element
   _onAudioMutedChanged(bool value) {
     setState(() {
       isAudioMuted = value;
     });
   }
 
+  // ignore: unused_element
   _onVideoMutedChanged(bool value) {
     setState(() {
       isVideoOff = value;
