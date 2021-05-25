@@ -26,7 +26,7 @@ class _MeetingScreenState extends State<MeetingScreen> with SingleTickerProvider
   tabBuilder(String name) {
     return Container(
       width: 150,
-      height: 50,
+      height: 60,
       color: Colors.transparent,
       child: Card(
         elevation: 0,
@@ -151,13 +151,7 @@ class _MeetingScreenState extends State<MeetingScreen> with SingleTickerProvider
               'Home',
               style: TextStyle(color: Colors.white),
             ),
-            onTap: () {
-              /*   Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => HomeScreen(username: widget.uid)),
-              ); */
-            },
+            onTap: () {},
           ),
           ListTile(
             leading: new IconButton(
@@ -194,7 +188,7 @@ class _MeetingScreenState extends State<MeetingScreen> with SingleTickerProvider
             ),
             onTap: () async {
               await FirebaseAuth.instance.signOut();
-              Widget initialRoute;
+              String initialRoute;
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(builder: (context) => MyApp(initialRoute)),

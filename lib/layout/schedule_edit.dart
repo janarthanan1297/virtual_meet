@@ -44,10 +44,17 @@ class _MeetingDetailsState extends State<MeetingDetails> {
   final emailText = TextEditingController(text: "fake@email.com");
   var isAudioOnly = false;
 
-  delete(String i) {
-    FirebaseFirestore.instance.collection(email).doc(i).delete().then((_) {
-      Fluttertoast.showToast(msg: 'success', toastLength: Toast.LENGTH_SHORT, gravity: ToastGravity.BOTTOM);
-      return;
+  upload() async {
+    await FirebaseFirestore.instance.collection('meeting').add({
+      'code': code,
+    });
+  }
+
+  delete() async {
+    FirebaseFirestore.instance.collection('meeting').where('code', isEqualTo: code).get().then((value) {
+      for (DocumentSnapshot ds in value.docs) {
+        ds.reference.delete();
+      }
     });
   }
 
@@ -330,17 +337,14 @@ class _MeetingDetailsState extends State<MeetingDetails> {
       featureFlag.welcomePageEnabled = false;
       featureFlag.meetingPasswordEnabled = true;
       featureFlag.inviteEnabled = false;
-      // Here is an example, disabling features for each platform
+
       if (Platform.isAndroid) {
-        // Disable ConnectionService usage on Android to avoid issues (see README)
         featureFlag.callIntegrationEnabled = false;
       } else if (Platform.isIOS) {
-        // Disable PIP on iOS as it looks weird
         featureFlag.pipEnabled = false;
       }
       featureFlag.resolution = FeatureFlagVideoResolution.MD_RESOLUTION;
 
-      // Define meetings options here
       var options = JitsiMeetingOptions()
         ..room = code
         ..serverURL = serverUrl
@@ -359,8 +363,10 @@ class _MeetingDetailsState extends State<MeetingDetails> {
         listener: JitsiMeetingListener(onConferenceWillJoin: ({message}) {
           debugPrint("${options.room} will join with message: $message");
         }, onConferenceJoined: ({message}) {
+          upload();
           debugPrint("${options.room} joined with message: $message");
         }, onConferenceTerminated: ({message}) {
+          delete();
           Fluttertoast.showToast(msg: 'Meeting Ended', toastLength: Toast.LENGTH_SHORT, gravity: ToastGravity.BOTTOM);
           debugPrint("${options.room} terminated with message: $message");
         }, onPictureInPictureWillEnter: ({message}) {
@@ -368,9 +374,6 @@ class _MeetingDetailsState extends State<MeetingDetails> {
         }, onPictureInPictureTerminated: ({message}) {
           debugPrint("${options.room} exited PIP mode with message: $message");
         }),
-        // by default, plugin default constraints are used
-        //roomNameConstraints: new Map(), // to disable all constraints
-        //roomNameConstraints: customContraints, // to use your own constraint(s)
       );
     } catch (error) {
       debugPrint("error: $error");

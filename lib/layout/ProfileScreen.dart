@@ -153,13 +153,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
               'Home',
               style: TextStyle(color: Colors.white),
             ),
-            onTap: () {
-              /*   Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => HomeScreen(username: widget.uid)),
-              ); */
-            },
+            onTap: () {},
           ),
           ListTile(
             leading: new IconButton(
@@ -196,7 +190,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
             ),
             onTap: () async {
               await FirebaseAuth.instance.signOut();
-              Widget initialRoute;
+              String initialRoute;
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(builder: (context) => MyApp(initialRoute)),

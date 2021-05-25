@@ -205,11 +205,6 @@ class _SchedulemeetingState extends State<Schedulemeeting> {
   @override
   void initState() {
     super.initState();
-    /* var initializationSettingsAndroid = AndroidInitializationSettings('flutter_devs');
-    var initializationSettingsIOs = IOSInitializationSettings();
-    var initSetttings = InitializationSettings(android: initializationSettingsAndroid, iOS: initializationSettingsIOs);
-    flutterLocalNotificationsPlugin.initialize(initSetttings, onSelectNotification: onSelectNotification); */
-    _selectdate(context);
     _formattime = formatDate(DateTime(2019, 08, 1, DateTime.now().hour, DateTime.now().minute), [HH, ':', nn]).toString();
     _formattime2 = formatDate(DateTime(2019, 08, 1, DateTime.now().hour, DateTime.now().minute), [hh, ':', nn, " ", am]).toString();
     JitsiMeet.addListener(JitsiMeetingListener(
@@ -258,16 +253,6 @@ class _SchedulemeetingState extends State<Schedulemeeting> {
                     },
                   );
                 }),
-                /*  actions: <Widget>[
-          IconButton(
-              icon: Icon(Icons.check_circle_outline),
-              color: primary,
-              iconSize: 30,
-              onPressed: () {
-                // Navigator.pushNamed(context, 'SignIn');
-              }),
-          SizedBox(width: 10),
-        ], */
               ),
               body: Form(
                   child: Container(
@@ -486,27 +471,6 @@ class _SchedulemeetingState extends State<Schedulemeeting> {
                         //height: size.height * 0.55,
                         child: Column(
                           children: [
-                            /*  Padding(
-                      padding: const EdgeInsets.only(
-                          left: 16.0, right: 16, bottom: 20, top: 10),
-                      child: TextFormField(
-                        //controller: emailController,
-                        decoration: InputDecoration(
-                            hintText: 'Create Meeting Code',
-                            hintStyle: TextStyle(color: Colors.grey),
-                            suffixIcon: IconButton(
-                                icon: Icon(Icons.autorenew_outlined),
-                                onPressed: null)),
-                        validator: (value) {
-                          if (value.isEmpty) {
-                                          return 'Enter an Email Address';
-                                        } else if (!value.contains('@')) {
-                                          return 'Please enter a valid email address';
-                                        }
-                                        return null;  
-                       },
-                     ),
-                    ), */
                             isVis == true
                                 ? Row(
                                     mainAxisAlignment: MainAxisAlignment.center,

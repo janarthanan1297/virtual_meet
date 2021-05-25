@@ -46,10 +46,10 @@ Future<void> main() async {
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitDown, DeviceOrientation.landscapeLeft]);
   WidgetsFlutterBinding.ensureInitialized();
   final NotificationAppLaunchDetails notificationAppLaunchDetails = await flutterLocalNotificationsPlugin.getNotificationAppLaunchDetails();
-  Widget initialRoute = HomeScreen(notificationAppLaunchDetails);
+  String initialRoute = HomeScreen.routeName;
   if (notificationAppLaunchDetails?.didNotificationLaunchApp ?? false) {
     selectedNotificationPayload = notificationAppLaunchDetails.payload;
-    initialRoute = JoinMeeting(selectedNotificationPayload);
+    initialRoute = JoinMeeting.routeName;
   }
   await Firebase.initializeApp();
   const AndroidInitializationSettings initializationSettingsAndroid = AndroidInitializationSettings('logo');
@@ -76,14 +76,14 @@ Future<void> main() async {
 }
 
 class MyApp extends StatefulWidget {
-  final Widget initialRoute;
+  final String initialRoute;
   MyApp(this.initialRoute);
   @override
   _MyAppState createState() => _MyAppState(initialRoute);
 }
 
 class _MyAppState extends State<MyApp> {
-  Widget initialRoute;
+  String initialRoute;
   _MyAppState(this.initialRoute);
   User user = FirebaseAuth.instance.currentUser;
   NotificationAppLaunchDetails notificationAppLaunchDetails;
@@ -102,17 +102,18 @@ class _MyAppState extends State<MyApp> {
                     return false;
                   },
                   child: MaterialApp(
-                      darkTheme: ThemeData.dark(),
-                      themeMode: ThemeMode.light,
-                      theme: notifier.darkTheme ? light : dark,
-                      debugShowCheckedModeBanner: false,
-                      //initialRoute: 'landing',
-                      /*  routes: <String, WidgetBuilder>{
-                  Landing.routeName: (_) => Landing(),
-                  HomeScreen.routeName: (_) =>
-                      HomeScreen(notificationAppLaunchDetails),
-                }, */
-                      home: (user == null) ? Landing() : initialRoute));
+                    darkTheme: ThemeData.dark(),
+                    themeMode: ThemeMode.light,
+                    theme: notifier.darkTheme ? light : dark,
+                    debugShowCheckedModeBanner: false,
+                    initialRoute: (user == null) ? Landing.routeName : initialRoute,
+                    routes: <String, WidgetBuilder>{
+                      HomeScreen.routeName: (_) => HomeScreen(notificationAppLaunchDetails),
+                      JoinMeeting.routeName: (_) => JoinMeeting(selectedNotificationPayload),
+                      Landing.routeName: (_) => Landing()
+                    },
+                    //home: (user == null) ? Landing() : initialRoute
+                  ));
             }));
       });
     });

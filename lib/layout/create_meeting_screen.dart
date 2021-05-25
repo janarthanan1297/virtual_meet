@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_local_notifications_platform_interface/src/notification_app_launch_details.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:virtual_classroom_meet/layout/home.dart';
@@ -57,6 +58,20 @@ class _CreateMeeetingScreenState extends State<CreateMeeetingScreen> {
         onError: _onError));
   }
 
+  upload() async {
+    await FirebaseFirestore.instance.collection('meeting').add({
+      'code': code,
+    });
+  }
+
+  delete() async {
+    FirebaseFirestore.instance.collection('meeting').where('code', isEqualTo: code).get().then((value) {
+      for (DocumentSnapshot ds in value.docs) {
+        ds.reference.delete();
+      }
+    });
+  }
+
   @override
   void dispose() {
     super.dispose();
@@ -87,16 +102,6 @@ class _CreateMeeetingScreenState extends State<CreateMeeetingScreen> {
                   SizedBox(
                     height: 10,
                   ),
-                  /*  TextFormField(
-                controller: _controller1,
-                style: TextStyle(fontSize:20),
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: "Create Meeting Code *(must)",
-                  labelStyle: TextStyle(fontSize:15),
-                  alignLabelWithHint: true,
-                ),
-              ), */
                   isVis == true
                       ? Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -234,7 +239,9 @@ class _CreateMeeetingScreenState extends State<CreateMeeetingScreen> {
                     height: 05,
                   ),
                   InkWell(
-                    onTap: _joinMeeting,
+                    onTap: () {
+                      _joinMeeting();
+                    },
                     child: Container(
                       width: size.width * 0.60,
                       height: 50,
@@ -277,24 +284,21 @@ class _CreateMeeetingScreenState extends State<CreateMeeetingScreen> {
   }
 
   _joinMeeting() async {
-    String serverUrl = serverText.text?.trim()?.isEmpty ?? "" ? null : serverText.text;
+    String serverUrl = 'https://meet.jit.si';
 
     try {
       FeatureFlag featureFlag = FeatureFlag();
       featureFlag.welcomePageEnabled = false;
       featureFlag.meetingPasswordEnabled = true;
       featureFlag.inviteEnabled = false;
-      // Here is an example, disabling features for each platform
       if (Platform.isAndroid) {
-        // Disable ConnectionService usage on Android to avoid issues (see README)
         featureFlag.callIntegrationEnabled = false;
+        featureFlag.welcomePageEnabled = false;
       } else if (Platform.isIOS) {
-        // Disable PIP on iOS as it looks weird
         featureFlag.pipEnabled = false;
       }
       featureFlag.resolution = FeatureFlagVideoResolution.MD_RESOLUTION;
 
-      // Define meetings options here
       var options = JitsiMeetingOptions()
         ..room = code
         ..serverURL = serverUrl
@@ -313,22 +317,17 @@ class _CreateMeeetingScreenState extends State<CreateMeeetingScreen> {
         listener: JitsiMeetingListener(onConferenceWillJoin: ({message}) {
           debugPrint("${options.room} will join with message: $message");
         }, onConferenceJoined: ({message}) {
+          upload();
           debugPrint("${options.room} joined with message: $message");
         }, onConferenceTerminated: ({message}) {
+          delete();
           Fluttertoast.showToast(msg: 'Meeting Ended', toastLength: Toast.LENGTH_SHORT, gravity: ToastGravity.BOTTOM);
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => HomeScreen(notificationAppLaunchDetails)),
-          );
           debugPrint("${options.room} terminated with message: $message");
         }, onPictureInPictureWillEnter: ({message}) {
           debugPrint("${options.room} entered PIP mode with message: $message");
         }, onPictureInPictureTerminated: ({message}) {
           debugPrint("${options.room} exited PIP mode with message: $message");
         }),
-        // by default, plugin default constraints are used
-        //roomNameConstraints: new Map(), // to disable all constraints
-        //roomNameConstraints: customContraints, // to use your own constraint(s)
       );
     } catch (error) {
       debugPrint("error: $error");

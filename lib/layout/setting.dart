@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 // ignore: implementation_imports
 import 'package:flutter_local_notifications_platform_interface/src/notification_app_launch_details.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:provider/provider.dart';
 import 'package:virtual_classroom_meet/layout/Feedback.dart';
 import 'package:virtual_classroom_meet/main.dart';
 import 'package:virtual_classroom_meet/res/color.dart';
+import 'package:virtual_classroom_meet/res/theme.dart';
 
 class SettingsTwoPage extends StatefulWidget {
   @override
@@ -14,14 +16,10 @@ class SettingsTwoPage extends StatefulWidget {
 
 class _SettingState extends State<SettingsTwoPage> {
   bool value1 = false;
-  bool value2 = false;
+  bool value2;
   String username = FirebaseAuth.instance.currentUser.displayName;
   String profile = FirebaseAuth.instance.currentUser.photoURL;
   String email = FirebaseAuth.instance.currentUser.email;
-  static const TextStyle whiteBoldText = TextStyle(
-    fontWeight: FontWeight.bold,
-    color: Colors.black,
-  );
   final TextStyle whiteText = TextStyle(
     color: Colors.white,
   );
@@ -82,10 +80,7 @@ class _SettingState extends State<SettingsTwoPage> {
                         children: <Widget>[
                           Text(
                             username,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 20.0,
-                            ),
+                            style: Theme.of(context).primaryTextTheme.headline1,
                           ),
                           Text(
                             email,
@@ -103,7 +98,7 @@ class _SettingState extends State<SettingsTwoPage> {
                   contentPadding: EdgeInsets.only(left: 0, right: 10, top: 20, bottom: 10),
                   title: Text(
                     "Profile Settings",
-                    style: whiteBoldText,
+                    style: Theme.of(context).primaryTextTheme.subtitle2,
                   ),
                   subtitle: Text(
                     username,
@@ -123,55 +118,33 @@ class _SettingState extends State<SettingsTwoPage> {
                     Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) => EditProfilePage()));
                   },
                 ),
-                SwitchListTile(
-                  contentPadding: EdgeInsets.only(left: 0, right: 0, bottom: 15),
-                  title: Text(
-                    " Dark mode",
-                    style: whiteBoldText,
-                  ),
-                  inactiveThumbColor: grey,
-                  inactiveTrackColor: Colors.grey[300],
-                  activeColor: primary,
-                  value: value2,
-                  onChanged: (val) {
-                    setState(() {
-                      value2 = val;
-                    });
-                  },
-                  secondary: CircleAvatar(
-                      backgroundColor: Colors.black,
-                      child: IconButton(
-                        icon: Icon(Icons.bedtime, color: Colors.white),
-                        onPressed: null,
-                      )),
-                ),
-                SwitchListTile(
-                  contentPadding: EdgeInsets.only(left: 0, right: 0, bottom: 15),
-                  title: Text(
-                    "Notifications",
-                    style: whiteBoldText,
-                  ),
-                  inactiveThumbColor: grey,
-                  inactiveTrackColor: Colors.grey[300],
-                  activeColor: primary,
-                  value: value1,
-                  onChanged: (val) {
-                    setState(() {
-                      value1 = val;
-                    });
-                  },
-                  secondary: CircleAvatar(
-                      backgroundColor: Colors.green,
-                      child: IconButton(
-                        icon: Icon(Icons.notifications, color: Colors.white),
-                        onPressed: null,
-                      )),
-                ),
+                Consumer<ThemeNotifier>(
+                    builder: (context, notifier, child) => SwitchListTile(
+                          contentPadding: EdgeInsets.only(left: 0, right: 0, bottom: 15),
+                          title: Text(
+                            " Dark mode",
+                            style: Theme.of(context).primaryTextTheme.subtitle2,
+                          ),
+                          inactiveThumbColor: grey,
+                          inactiveTrackColor: Colors.grey[300],
+                          activeColor: primary,
+                          value: notifier.darkTheme ? value2 = false : true,
+                          onChanged: (val) {
+                            value2 = val;
+                            notifier.toggleTheme();
+                          },
+                          secondary: CircleAvatar(
+                              backgroundColor: Colors.black,
+                              child: IconButton(
+                                icon: Icon(Icons.bedtime, color: Colors.white),
+                                onPressed: null,
+                              )),
+                        )),
                 ListTile(
                   contentPadding: EdgeInsets.only(left: 0, right: 10, bottom: 10),
                   title: Text(
                     "Feedback",
-                    style: whiteBoldText,
+                    style: Theme.of(context).primaryTextTheme.subtitle2,
                   ),
                   leading: CircleAvatar(
                       backgroundColor: Colors.blue,
@@ -184,7 +157,7 @@ class _SettingState extends State<SettingsTwoPage> {
                     color: Colors.grey,
                   ),
                   onTap: () {
-                    Navigator.pushReplacement(
+                    Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => FeedbackPage()),
                     );
@@ -193,26 +166,8 @@ class _SettingState extends State<SettingsTwoPage> {
                 ListTile(
                   contentPadding: EdgeInsets.only(left: 0, right: 10, bottom: 10),
                   title: Text(
-                    "About Us",
-                    style: whiteBoldText,
-                  ),
-                  leading: CircleAvatar(
-                      backgroundColor: Colors.yellow,
-                      child: IconButton(
-                        icon: Icon(Icons.info, color: Colors.white),
-                        onPressed: null,
-                      )),
-                  trailing: Icon(
-                    Icons.keyboard_arrow_right,
-                    color: Colors.grey,
-                  ),
-                  onTap: () {},
-                ),
-                ListTile(
-                  contentPadding: EdgeInsets.only(left: 0, right: 10, bottom: 10),
-                  title: Text(
                     "Logout",
-                    style: whiteBoldText,
+                    style: Theme.of(context).primaryTextTheme.subtitle2,
                   ),
                   leading: CircleAvatar(
                       backgroundColor: Colors.red,
@@ -230,7 +185,7 @@ class _SettingState extends State<SettingsTwoPage> {
                   ),
                   onTap: () async {
                     await FirebaseAuth.instance.signOut();
-                    Widget initialRoute;
+                    String initialRoute;
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(builder: (context) => MyApp(initialRoute)),

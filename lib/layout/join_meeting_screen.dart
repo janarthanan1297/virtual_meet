@@ -1,7 +1,9 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import "package:flutter/material.dart";
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:jitsi_meet/feature_flag/feature_flag.dart';
 import 'package:jitsi_meet/jitsi_meeting_listener.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
@@ -31,6 +33,7 @@ class _JoinMeetingScreenState extends State<JoinMeetingScreen> {
   bool isAudioMuted = true;
   var isAudioOnly = false;
   bool isData = false;
+  int length;
 
   @override
   void initState() {
@@ -50,39 +53,6 @@ class _JoinMeetingScreenState extends State<JoinMeetingScreen> {
     super.dispose();
     JitsiMeet.removeAllListeners();
   }
-
-  /* getData() async {
-    var uid = FirebaseAuth.instance.currentUser.uid;
-    DocumentSnapshot data = await userCollection.doc(uid).get();
-    setState(() {
-      username = data["username"];
-      isData = true;
-    });
-  } */
-
-  /* joinMeeting() async {
-    try {
-      Map<FeatureFlagEnum, bool> featureFlags = {
-        FeatureFlagEnum.WELCOME_PAGE_ENABLED: false,
-      };
-      if (Platform.isAndroid) {
-        featureFlags[FeatureFlagEnum.CALL_INTEGRATION_ENABLED] = false;
-      } else if (Platform.isIOS) {
-        featureFlags[FeatureFlagEnum.PIP_ENABLED] = false;
-      }
-
-      var options = JitsiMeetingOptions()
-        ..room = roomController.text // Required, spaces will be trimmed
-        ..userDisplayName = _controller.text == "" ? username : _controller.text
-        ..audioMuted = isAudioMuted
-        ..videoMuted = isVideoOff
-        ..featureFlag.addPeopleEnabled;
-
-      await JitsiMeet.joinMeeting(options);
-    } catch (err) {
-      print(err);
-    }
-  } */
 
   @override
   Widget build(BuildContext context) {
@@ -116,22 +86,14 @@ class _JoinMeetingScreenState extends State<JoinMeetingScreen> {
                 onChanged: (value) {},
                 animationType: AnimationType.fade,
                 pinTheme: PinTheme(
+                  selectedColor: primary,
+                  selectedFillColor: primary,
+                  activeColor: primary,
+                  activeFillColor: primary,
                   shape: PinCodeFieldShape.underline,
                 ),
                 animationDuration: Duration(microseconds: 300),
               ),
-              /*  SizedBox(
-                height: 10,
-              ),
-              TextFormField(
-                controller: _controller,
-                style: TextStyle(fontSize:20),
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: "Username(this will be visible in the meeting)",
-                  labelStyle: TextStyle(fontSize:15),
-                ),
-              ), */
               SizedBox(
                 height: 16,
               ),
@@ -172,7 +134,21 @@ class _JoinMeetingScreenState extends State<JoinMeetingScreen> {
                 height: 30,
               ),
               InkWell(
-                onTap: _joinMeeting,
+                onTap: () {
+                  FirebaseFirestore.instance.collection('meeting').get().then(
+                    (snapshot) {
+                      length = snapshot.docs.length;
+                      for (int i = 0; i < length; i++) {
+                        var code = snapshot.docs[i]["code"].toString();
+                        if (roomController.text == code) {
+                          _joinMeeting();
+                        } else {
+                          Fluttertoast.showToast(msg: 'No such Meeting', toastLength: Toast.LENGTH_SHORT, gravity: ToastGravity.BOTTOM);
+                        }
+                      }
+                    },
+                  );
+                },
                 child: Container(
                   width: size.width * 0.60,
                   height: 50,
@@ -222,19 +198,17 @@ class _JoinMeetingScreenState extends State<JoinMeetingScreen> {
 
     try {
       FeatureFlag featureFlag = FeatureFlag();
-      featureFlag.welcomePageEnabled = true;
+      featureFlag.welcomePageEnabled = false;
       featureFlag.meetingPasswordEnabled = true;
-      // Here is an example, disabling features for each platform
+
       if (Platform.isAndroid) {
-        // Disable ConnectionService usage on Android to avoid issues (see README)
+        featureFlag.welcomePageEnabled = false;
         featureFlag.callIntegrationEnabled = false;
       } else if (Platform.isIOS) {
-        // Disable PIP on iOS as it looks weird
         featureFlag.pipEnabled = false;
       }
       featureFlag.resolution = FeatureFlagVideoResolution.MD_RESOLUTION;
 
-      // Define meetings options here
       var options = JitsiMeetingOptions()
         ..room = roomController.text
         ..serverURL = serverUrl
@@ -260,9 +234,6 @@ class _JoinMeetingScreenState extends State<JoinMeetingScreen> {
         }, onPictureInPictureTerminated: ({message}) {
           debugPrint("${options.room} exited PIP mode with message: $message");
         }),
-        // by default, plugin default constraints are used
-        //roomNameConstraints: new Map(), // to disable all constraints
-        //roomNameConstraints: customContraints, // to use your own constraint(s)
       );
     } catch (error) {
       debugPrint("error: $error");

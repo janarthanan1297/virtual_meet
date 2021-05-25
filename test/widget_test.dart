@@ -13,7 +13,7 @@ import 'package:virtual_classroom_meet/main.dart';
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    Widget initialRoute;
+    String initialRoute;
     await tester.pumpWidget(MyApp(initialRoute));
 
     // Verify that our counter starts at 0.

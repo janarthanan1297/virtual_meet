@@ -16,7 +16,7 @@ class HomeScreen extends StatefulWidget {
     this.notificationAppLaunchDetails, {
     Key key,
   }) : super(key: key);
-  static const String routeName = '/HomePage';
+  static const String routeName = '/';
   final NotificationAppLaunchDetails notificationAppLaunchDetails;
   bool get didNotificationLaunchApp => notificationAppLaunchDetails?.didNotificationLaunchApp ?? false;
   @override
@@ -24,7 +24,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  //String username = FirebaseAuth.instance.currentUser.displayName;
   int page = 0;
   List pageOptions = [
     MeetingScreen(),
@@ -37,20 +36,11 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     _configureDidReceiveLocalNotificationSubject();
     onSelectNotification();
-    //var initializationSettingsAndroid = AndroidInitializationSettings('logo');
-    //var initializationSettingsIOs = IOSInitializationSettings();
-    //var initSetttings = InitializationSettings(android: initializationSettingsAndroid, iOS: initializationSettingsIOs);
-    // flutterLocalNotificationsPlugin.initialize(initSetttings, onSelectNotification: onSelectNotification);
   }
 
   void onSelectNotification() {
     selectNotificationSubject.stream.listen((String payload) async {
-      await Navigator.push(
-        context,
-        MaterialPageRoute<void>(
-          builder: (BuildContext context) => JoinMeeting(payload),
-        ),
-      );
+      await Navigator.pushNamed(context, '/secondPage');
     });
   }
 
@@ -135,45 +125,4 @@ class _HomeScreenState extends State<HomeScreen> {
       body: pageOptions[page],
     );
   }
-}
-
-class SecondPage extends StatefulWidget {
-  const SecondPage(
-    this.payload, {
-    Key key,
-  }) : super(key: key);
-
-  static const String routeName = '/secondPage';
-
-  final String payload;
-
-  @override
-  State<StatefulWidget> createState() => SecondPageState();
-}
-
-class SecondPageState extends State<SecondPage> {
-  String _payload;
-  @override
-  void initState() {
-    super.initState();
-    _payload = widget.payload;
-  }
-
-  @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(
-          title: Text(
-            'Second Screen: $_payload',
-            style: TextStyle(color: Colors.black),
-          ),
-        ),
-        body: Center(
-          child: ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: const Text('Go back!'),
-          ),
-        ),
-      );
 }

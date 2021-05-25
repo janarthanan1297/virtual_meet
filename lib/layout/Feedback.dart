@@ -1,8 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications_platform_interface/src/notification_app_launch_details.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:virtual_classroom_meet/main.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:virtual_classroom_meet/layout/home.dart';
+import 'package:virtual_classroom_meet/layout/login.dart';
 import 'package:virtual_classroom_meet/layout/setting.dart';
 import 'package:virtual_classroom_meet/res/color.dart';
 
@@ -13,6 +17,15 @@ class FeedbackPage extends StatefulWidget {
 
 class _Feedback extends State<FeedbackPage> {
   TextEditingController details = TextEditingController();
+  String email = FirebaseAuth.instance.currentUser.email;
+
+  upload() async {
+    await FirebaseFirestore.instance.collection('Feedback').add({
+      'User': email,
+      'Feedback': details.text,
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
@@ -21,17 +34,14 @@ class _Feedback extends State<FeedbackPage> {
         elevation: 0.0,
         title: Text(
           "Feedback",
-          style: TextStyle(fontSize: 20, color: Colors.black),
+          style: Theme.of(context).primaryTextTheme.headline1,
         ),
         centerTitle: true,
         leading: Builder(builder: (BuildContext context) {
           return IconButton(
             icon: Icon(Icons.arrow_back_ios),
             onPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => SettingsTwoPage()),
-              );
+              Navigator.pop(context);
             },
           );
         }),
@@ -74,7 +84,9 @@ class _Feedback extends State<FeedbackPage> {
             ),
             InkWell(
               onTap: () {
-                Navigator.pushReplacement(context, new MaterialPageRoute(builder: (context) => SettingsTwoPage()));
+                Navigator.pop(context);
+                upload();
+                Fluttertoast.showToast(msg: 'Thanks for your Feedback', toastLength: Toast.LENGTH_SHORT, gravity: ToastGravity.BOTTOM);
               },
               child: Container(
                 width: size.width * 0.75,
@@ -122,10 +134,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
             Icons.arrow_back_ios,
           ),
           onPressed: () {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => SettingsTwoPage()),
-            );
+            Navigator.pop(context);
           },
         ),
       ),
@@ -139,7 +148,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
             children: [
               Text(
                 "Edit Profile",
-                style: TextStyle(fontSize: 25, fontWeight: FontWeight.w500),
+                style: Theme.of(context).primaryTextTheme.headline1,
               ),
               SizedBox(
                 height: 15,
@@ -185,9 +194,32 @@ class _EditProfilePageState extends State<EditProfilePage> {
               buildTextField("Full Name", username, false),
               buildTextField("E-mail", email, false),
               buildTextField("Password", "********", true),
-              buildTextField("Location", "TLV, Israel", false),
+              ListTile(
+                contentPadding: EdgeInsets.only(left: 0, right: 0, bottom: 0),
+                title: Text(
+                  "Reset Password",
+                  style: Theme.of(context).primaryTextTheme.subtitle2,
+                ),
+                leading: CircleAvatar(
+                    backgroundColor: primary,
+                    child: IconButton(
+                      icon: Icon(Icons.lock_open, color: Colors.white),
+                      onPressed: null,
+                    )),
+                trailing: Icon(
+                  Icons.keyboard_arrow_right,
+                  color: Colors.grey,
+                ),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => Resetpassword()),
+                  );
+                },
+              ),
+              Divider(thickness: 1, color: Colors.grey),
               SizedBox(
-                height: 35,
+                height: 45,
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -244,32 +276,32 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   Widget buildTextField(String labelText, String placeholder, bool isPasswordTextField) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 35.0),
+      padding: const EdgeInsets.only(bottom: 30.0),
       child: TextField(
         obscureText: isPasswordTextField ? showPassword : false,
         decoration: InputDecoration(
-            suffixIcon: isPasswordTextField
-                ? IconButton(
-                    onPressed: () {
-                      setState(() {
-                        showPassword = !showPassword;
-                      });
-                    },
-                    icon: Icon(
-                      Icons.remove_red_eye,
-                      color: Colors.grey,
-                    ),
-                  )
-                : null,
-            contentPadding: EdgeInsets.only(bottom: 3),
-            labelText: labelText,
-            floatingLabelBehavior: FloatingLabelBehavior.always,
-            hintText: placeholder,
-            hintStyle: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-            )),
+          suffixIcon: isPasswordTextField
+              ? IconButton(
+                  onPressed: () {
+                    setState(() {
+                      showPassword = !showPassword;
+                    });
+                  },
+                  icon: Icon(
+                    Icons.remove_red_eye,
+                    color: Colors.grey,
+                  ),
+                )
+              : null,
+          contentPadding: EdgeInsets.only(bottom: 3),
+          labelText: labelText,
+          labelStyle: TextStyle(
+            color: Colors.grey.shade600,
+          ),
+          floatingLabelBehavior: FloatingLabelBehavior.always,
+          hintText: placeholder,
+          hintStyle: Theme.of(context).primaryTextTheme.headline3,
+        ),
       ),
     );
   }

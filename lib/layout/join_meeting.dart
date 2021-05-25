@@ -12,6 +12,7 @@ import 'package:jitsi_meet/room_name_constraint_type.dart';
 import 'package:provider/provider.dart';
 import 'package:share/share.dart';
 import 'package:virtual_classroom_meet/layout/home.dart';
+import 'package:virtual_classroom_meet/main.dart';
 import 'package:virtual_classroom_meet/res/color.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:virtual_classroom_meet/res/theme.dart';
@@ -21,14 +22,13 @@ class JoinMeeting extends StatefulWidget {
     this.payload, {
     Key key,
   }) : super(key: key);
+  static const String routeName = '/secondPage';
   final String payload;
-
   @override
   JoinMeetingState createState() => JoinMeetingState();
 }
 
 class JoinMeetingState extends State<JoinMeeting> {
-  NotificationAppLaunchDetails notificationAppLaunchDetails;
   bool isVideoOff = true;
   bool isAudioMuted = true;
   bool isVisible = false;
@@ -38,7 +38,7 @@ class JoinMeetingState extends State<JoinMeeting> {
   String time;
   String subject;
   String _payload;
-  int length;
+  int length, j;
   var isVis = false;
   TimeOfDay selectedTime = TimeOfDay.now();
   String username = FirebaseAuth.instance.currentUser.displayName;
@@ -51,10 +51,17 @@ class JoinMeetingState extends State<JoinMeeting> {
   final emailText = TextEditingController(text: "fake@email.com");
   var isAudioOnly = false;
 
-  delete(String i) {
-    FirebaseFirestore.instance.collection(email).doc(i).delete().then((_) {
-      Fluttertoast.showToast(msg: 'success', toastLength: Toast.LENGTH_SHORT, gravity: ToastGravity.BOTTOM);
-      return;
+  upload() async {
+    await FirebaseFirestore.instance.collection('meeting').add({
+      'code': code,
+    });
+  }
+
+  delete() async {
+    FirebaseFirestore.instance.collection('meeting').where('code', isEqualTo: code).get().then((value) {
+      for (DocumentSnapshot ds in value.docs) {
+        ds.reference.delete();
+      }
     });
   }
 
@@ -100,11 +107,10 @@ class JoinMeetingState extends State<JoinMeeting> {
               leading: Builder(builder: (BuildContext context) {
                 return IconButton(
                   icon: Icon(Icons.arrow_back_ios),
-                  color: red,
+                  color: primary,
                   iconSize: 20,
                   onPressed: () {
-                    Navigator.pop(context);
-                    // Navigator.pushReplacement(context, new MaterialPageRoute(builder: (context) => HomeScreen(notificationAppLaunchDetails)));
+                    Navigator.of(context, rootNavigator: true).pop();
                   },
                 );
               }),
@@ -125,6 +131,7 @@ class JoinMeetingState extends State<JoinMeeting> {
                         subject = snapshot.data.docs[i]["Meeting Name"].toString();
                         date = snapshot.data.docs[i]["date"].toString();
                         time = snapshot.data.docs[i]["time"].toString();
+                        j = i;
                       }
                     }
                     return SingleChildScrollView(
@@ -254,7 +261,7 @@ class JoinMeetingState extends State<JoinMeeting> {
                           child: Container(
                             width: size.width * 0.75,
                             height: 50,
-                            decoration: BoxDecoration(color: red, borderRadius: BorderRadius.circular(15), boxShadow: [
+                            decoration: BoxDecoration(color: primary, borderRadius: BorderRadius.circular(15), boxShadow: [
                               BoxShadow(
                                 color: Colors.black26,
                                 blurRadius: 5,
@@ -285,11 +292,11 @@ class JoinMeetingState extends State<JoinMeeting> {
                           child: Container(
                             width: size.width * 0.75,
                             height: 50,
-                            decoration: BoxDecoration(borderRadius: BorderRadius.circular(15), border: Border.all(color: red, width: 3)),
+                            decoration: BoxDecoration(borderRadius: BorderRadius.circular(15), border: Border.all(color: primary, width: 3)),
                             child: Center(
                               child: Text(
                                 "Invite",
-                                style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: red),
+                                style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: primary),
                               ),
                             ),
                           ),
@@ -299,19 +306,19 @@ class JoinMeetingState extends State<JoinMeeting> {
                         ),
                         InkWell(
                           onTap: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => HomeScreen(notificationAppLaunchDetails)));
-                            FirebaseFirestore.instance.collection(email).doc(snapshot.data.docs[0].id).delete().then((_) {
-                              Fluttertoast.showToast(msg: 'Scheduled Meeting Deleted', toastLength: Toast.LENGTH_SHORT, gravity: ToastGravity.BOTTOM);
-                            });
+                            Navigator.of(context, rootNavigator: true).pop();
+                            FirebaseFirestore.instance.collection(email).doc(snapshot.data.docs[j].id).delete().then((value) =>
+                                Fluttertoast.showToast(
+                                    msg: 'Scheduled Meeting Deleted', toastLength: Toast.LENGTH_SHORT, gravity: ToastGravity.BOTTOM));
                           },
                           child: Container(
                             width: size.width * 0.75,
                             height: 50,
-                            decoration: BoxDecoration(borderRadius: BorderRadius.circular(15), border: Border.all(color: red, width: 3)),
+                            decoration: BoxDecoration(borderRadius: BorderRadius.circular(15), border: Border.all(color: primary, width: 3)),
                             child: Center(
                               child: Text(
                                 "Delete",
-                                style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: red),
+                                style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: primary),
                               ),
                             ),
                           ),
@@ -348,17 +355,14 @@ class JoinMeetingState extends State<JoinMeeting> {
       featureFlag.welcomePageEnabled = false;
       featureFlag.meetingPasswordEnabled = true;
       featureFlag.inviteEnabled = false;
-      // Here is an example, disabling features for each platform
+
       if (Platform.isAndroid) {
-        // Disable ConnectionService usage on Android to avoid issues (see README)
         featureFlag.callIntegrationEnabled = false;
       } else if (Platform.isIOS) {
-        // Disable PIP on iOS as it looks weird
         featureFlag.pipEnabled = false;
       }
       featureFlag.resolution = FeatureFlagVideoResolution.MD_RESOLUTION;
 
-      // Define meetings options here
       var options = JitsiMeetingOptions()
         ..room = code
         ..serverURL = serverUrl
@@ -377,8 +381,10 @@ class JoinMeetingState extends State<JoinMeeting> {
         listener: JitsiMeetingListener(onConferenceWillJoin: ({message}) {
           debugPrint("${options.room} will join with message: $message");
         }, onConferenceJoined: ({message}) {
+          upload();
           debugPrint("${options.room} joined with message: $message");
         }, onConferenceTerminated: ({message}) {
+          delete();
           Fluttertoast.showToast(msg: 'Meeting Ended', toastLength: Toast.LENGTH_SHORT, gravity: ToastGravity.BOTTOM);
           debugPrint("${options.room} terminated with message: $message");
         }, onPictureInPictureWillEnter: ({message}) {
@@ -386,9 +392,6 @@ class JoinMeetingState extends State<JoinMeeting> {
         }, onPictureInPictureTerminated: ({message}) {
           debugPrint("${options.room} exited PIP mode with message: $message");
         }),
-        // by default, plugin default constraints are used
-        //roomNameConstraints: new Map(), // to disable all constraints
-        //roomNameConstraints: customContraints, // to use your own constraint(s)
       );
     } catch (error) {
       debugPrint("error: $error");

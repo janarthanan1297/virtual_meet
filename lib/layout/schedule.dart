@@ -11,10 +11,6 @@ import 'package:virtual_classroom_meet/res/color.dart';
 import 'package:intl/intl.dart';
 import 'package:virtual_classroom_meet/res/theme.dart';
 
-//import 'package:jitsi_meet/feature_flag/feature_flag_enum.dart';
-//import 'package:jitsi_meet/jitsi_meet.dart';
-//import 'package:pin_code_fields/pin_code_fields.dart';
-
 class Schedule extends StatefulWidget {
   @override
   _ScheduleState createState() => _ScheduleState();
@@ -48,7 +44,6 @@ class _ScheduleState extends State<Schedule> {
     var size = MediaQuery.of(context).size;
     final textTheme = Theme.of(context).textTheme;
     return Scaffold(
-      // backgroundColor: Colors.white,
       body: Container(
         padding: EdgeInsets.symmetric(
           horizontal: 0,
@@ -61,7 +56,6 @@ class _ScheduleState extends State<Schedule> {
             InkWell(
               onTap: () async {
                 Navigator.push(context, new MaterialPageRoute(builder: (context) => Schedulemeeting()));
-                //await _notification();
               },
               child: Container(
                 width: size.width * 0.60,
@@ -100,16 +94,6 @@ class _ScheduleState extends State<Schedule> {
             Divider(
               thickness: 2,
             ),
-            /*  Container(
-                width: size.width,
-               // height: size.height,
-                child: Center(
-                 // padding: EdgeInsets.only(left: 15,top: 5),
-                  child:Text("No Scheduled Meetings",
-                  style: TextStyle(fontSize:20,color: Colors.black),
-                  )),
-              ), */
-
             Expanded(
               child: StreamBuilder(
                   stream: FirebaseFirestore.instance.collection(email).orderBy('Time', descending: true).snapshots(),
@@ -164,10 +148,6 @@ class _ScheduleState extends State<Schedule> {
                           ],
                         ),
                       );
-                      /* return Text(
-                        "No Scheduled Meetings",
-                        style: TextStyle(fontSize: 20, color: Colors.black),
-                      ); */
                     }
                     if (!snapshot.hasData) {
                       return Container(
@@ -247,7 +227,7 @@ class _ScheduleState extends State<Schedule> {
                                           Row(
                                             children: [
                                               Padding(
-                                                padding: const EdgeInsets.only(left: 10, top: 15, bottom: 15, right: 10),
+                                                padding: const EdgeInsets.only(left: 10, top: 15, bottom: 15),
                                                 child: Container(
                                                   height: 50,
                                                   width: 50,
@@ -255,7 +235,7 @@ class _ScheduleState extends State<Schedule> {
                                                       color: red,
                                                       borderRadius: BorderRadius.circular(10),
                                                       boxShadow: [BoxShadow(color: red, blurRadius: 03)]),
-                                                  alignment: Alignment.center,
+                                                  alignment: Alignment.centerLeft,
                                                   child: Text(
                                                     snapshot.data.docs[i]["time"].toString(),
                                                     style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 17),
@@ -263,7 +243,12 @@ class _ScheduleState extends State<Schedule> {
                                                   ),
                                                 ),
                                               ),
+                                              /*  SizedBox(
+                                                width: 15,
+                                              ), */
+                                              Spacer(),
                                               Container(
+                                                alignment: Alignment.center,
                                                 child: Column(
                                                   children: [
                                                     Text(snapshot.data.docs[i]["Meeting Name"].toString(),
@@ -275,15 +260,19 @@ class _ScheduleState extends State<Schedule> {
                                                   ],
                                                 ),
                                               ),
+                                              /* SizedBox(
+                                                width: 10,
+                                              ), */
+                                              Spacer(),
                                               Padding(
                                                 padding: const EdgeInsets.only(
-                                                  left: 10,
+                                                  right: 10,
                                                   top: 15,
                                                   bottom: 15,
                                                 ),
                                                 child: Container(
                                                   height: 40,
-                                                  width: 80,
+                                                  width: 75,
                                                   decoration: BoxDecoration(
                                                       color: red,
                                                       borderRadius: BorderRadius.circular(10),
@@ -297,11 +286,6 @@ class _ScheduleState extends State<Schedule> {
                                                 ),
                                               ),
                                             ],
-                                          ),
-                                          Container(
-                                            child: const SizedBox(
-                                              width: 8.0,
-                                            ),
                                           ),
                                         ],
                                       ),
