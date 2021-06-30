@@ -5,7 +5,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:flutter_restart/flutter_restart.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:jitsi_meet/feature_flag/feature_flag.dart';
@@ -14,14 +13,11 @@ import 'package:jitsi_meet/jitsi_meeting_listener.dart';
 import 'package:jitsi_meet/room_name_constraint.dart';
 import 'package:jitsi_meet/room_name_constraint_type.dart';
 import 'package:provider/provider.dart';
-import 'package:rxdart/subjects.dart';
 import 'package:uuid/uuid.dart';
 import 'package:virtual_classroom_meet/layout/home.dart';
-import 'package:virtual_classroom_meet/layout/setting.dart';
 import 'package:virtual_classroom_meet/res/color.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:virtual_classroom_meet/main.dart';
 import 'package:virtual_classroom_meet/res/theme.dart';
 
 class Schedulemeeting extends StatefulWidget {
@@ -51,12 +47,15 @@ class _SchedulemeetingState extends State<Schedulemeeting> {
   bool isVisible = false;
   String code = "";
   var isVis = false;
+  var validate = false;
+  final _formKey = GlobalKey<FormState>();
+  bool isLoading = false;
   TimeOfDay selectedTime = TimeOfDay.now();
   DateTime _currentdate = new DateTime.now();
   String username = FirebaseAuth.instance.currentUser.displayName;
   String email = FirebaseAuth.instance.currentUser.email;
   String profile = FirebaseAuth.instance.currentUser.photoURL;
-  TextEditingController emailController = TextEditingController();
+  final emailController = TextEditingController();
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
   final serverText = TextEditingController();
   final roomText = TextEditingController(text: "plugintestroom");
@@ -156,6 +155,7 @@ class _SchedulemeetingState extends State<Schedulemeeting> {
     setState(() {
       code = Uuid().v1().substring(0, 6);
       isVis = true;
+      validate = false;
     });
   }
 
@@ -196,11 +196,15 @@ class _SchedulemeetingState extends State<Schedulemeeting> {
         androidAllowWhileIdle: true, payload: code);
   }
 
-  /*  Future onSelectNotification(payload) {
-    Navigator.of(context).push(MaterialPageRoute(builder: (_) {
-      return SettingsTwoPage();
-    }));
-  } */
+  Future<void> refresh() async {
+    setState(() {});
+    /* emailController.clear();
+    validate = false;
+    isVis = false;
+    code = '';
+    _formKey.currentState.reset(); */
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) => super.widget));
+  }
 
   @override
   void initState() {
@@ -254,317 +258,355 @@ class _SchedulemeetingState extends State<Schedulemeeting> {
                   );
                 }),
               ),
-              body: Form(
-                  child: Container(
-                // padding: EdgeInsets.symmetric( horizontal: 16,),
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      SizedBox(
-                        height: 40,
-                      ),
-                      Container(
-                        color: notifier.darkTheme ? Colors.white : Colors.black,
-                        //height: 20,
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 16.0, right: 16),
-                          child: TextFormField(
-                            controller: emailController,
-                            style: Theme.of(context).primaryTextTheme.subtitle2,
-                            decoration: InputDecoration(
-                              hintText: 'Enter Meeting Name',
-                              hintStyle: Theme.of(context).primaryTextTheme.bodyText2,
-                              suffixIcon: Icon(
-                                Icons.videocam,
-                                color: Colors.grey,
-                              ),
-                              enabledBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(
-                                color: Colors.grey[300],
-                                width: 2.0,
-                              )),
-                            ),
-                            validator: (value) {
-                              /* if (value.isEmpty) {
-                                      return 'Enter an Email Address';
-                                    } else if (!value.contains('@')) {
-                                      return 'Please enter a valid email address';
-                                    }
-                                    return null; */
-                            },
-                          ),
-                        ),
-                      ),
-                      Container(
-                        // height: size.height,
-                        color: notifier.darkTheme ? Colors.white : Colors.black,
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 16,
-                        ),
+              body: RefreshIndicator(
+                onRefresh: refresh,
+                child: Form(
+                    key: _formKey,
+                    child: Container(
+                      // padding: EdgeInsets.symmetric( horizontal: 16,),
+                      child: SingleChildScrollView(
+                        physics: AlwaysScrollableScrollPhysics(),
                         child: Column(
                           children: [
-                            InkWell(
-                                highlightColor: Colors.transparent,
-                                splashColor: primary,
-                                onTap: () {
-                                  _selectdate(context);
-                                },
-                                child: Row(
-                                  children: [
-                                    Text(
-                                      "Date",
-                                      style: Theme.of(context).primaryTextTheme.bodyText1,
-                                    ),
-                                    Spacer(),
-                                    ElevatedButton(
-                                      onPressed: () {
-                                        _selectdate(context);
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                        elevation: 0,
-                                        primary: Colors.transparent,
-                                        onPrimary: Colors.black45,
-                                      ),
-                                      child: Text(
-                                        '$_formattedate2 ',
-                                        style: Theme.of(context).primaryTextTheme.headline2,
-                                      ),
-                                    ),
-                                    Icon(
-                                      Icons.arrow_forward_ios,
-                                      color: Colors.grey,
-                                      size: 20,
-                                    )
-                                  ],
-                                )),
-                            Divider(
-                              thickness: 1,
-                              color: Colors.grey[300],
-                            ),
-                            InkWell(
-                                highlightColor: Colors.transparent,
-                                splashColor: primary,
-                                onTap: () {
-                                  _selectTime(context);
-                                },
-                                child: Row(
-                                  children: [
-                                    Text(
-                                      "Time",
-                                      style: Theme.of(context).primaryTextTheme.bodyText1,
-                                    ),
-                                    Spacer(),
-                                    ElevatedButton(
-                                      onPressed: () {
-                                        _selectTime(context);
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                        elevation: 0,
-                                        primary: Colors.transparent,
-                                        onPrimary: Colors.black45,
-                                      ),
-                                      child: Text(
-                                        '$_formattime2 ',
-                                        style: Theme.of(context).primaryTextTheme.headline2,
-                                      ),
-                                    ),
-                                    Icon(
-                                      Icons.arrow_forward_ios,
-                                      color: Colors.grey,
-                                      size: 20,
-                                    )
-                                  ],
-                                )),
-                            Divider(
-                              thickness: 1,
-                              color: Colors.grey[300],
-                            ),
-                            InkWell(
-                                highlightColor: Colors.transparent,
-                                splashColor: primary,
-                                onTap: () {
-                                  _showSingleChoiceDialog(context);
-                                },
-                                child: Row(
-                                  children: [
-                                    Text(
-                                      "Repeat",
-                                      style: Theme.of(context).primaryTextTheme.bodyText1,
-                                    ),
-                                    Spacer(),
-                                    ElevatedButton(
-                                      onPressed: () {
-                                        _showSingleChoiceDialog(context);
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                        elevation: 0,
-                                        primary: Colors.transparent,
-                                        onPrimary: Colors.black45,
-                                      ),
-                                      child: Text(
-                                        '$_radioval ',
-                                        style: Theme.of(context).primaryTextTheme.headline2,
-                                      ),
-                                    ),
-                                    Icon(
-                                      Icons.arrow_forward_ios,
-                                      color: Colors.grey,
-                                      size: 20,
-                                    )
-                                  ],
-                                )),
-                            Divider(
-                              thickness: 1,
-                              color: Colors.grey[300],
-                            ),
-                            Visibility(
-                                visible: isVisible,
-                                child: InkWell(
-                                    highlightColor: Colors.transparent,
-                                    splashColor: primary,
-                                    onTap: () {
-                                      _enddate(context);
-                                    },
-                                    child: Row(
-                                      children: [
-                                        Text(
-                                          "End Repeat",
-                                          style: TextStyle(fontSize: 18, color: Colors.black),
-                                        ),
-                                        Spacer(),
-                                        ElevatedButton(
-                                          onPressed: () {
-                                            _enddate(context);
-                                          },
-                                          style: ElevatedButton.styleFrom(
-                                            elevation: 0,
-                                            primary: Colors.white,
-                                            onPrimary: Colors.black45,
-                                          ),
-                                          child: Text('$_endrepeat '),
-                                        ),
-                                        Icon(
-                                          Icons.arrow_forward_ios,
-                                          color: Colors.grey,
-                                          size: 20,
-                                        )
-                                      ],
-                                    ))),
-                            Visibility(visible: isVisible, child: Divider(thickness: 1)),
-                            SizedBox(
-                              height: 10,
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      Container(
-                          padding: EdgeInsets.only(left: 16, bottom: 10),
-                          alignment: Alignment.topLeft,
-                          child: Text('SECURITY', style: Theme.of(context).primaryTextTheme.subtitle2)),
-                      Container(
-                        color: notifier.darkTheme ? Colors.white : Colors.black,
-                        padding: EdgeInsets.only(top: 10),
-                        height: MediaQuery.of(context).size.height / 2,
-                        //height: size.height * 0.55,
-                        child: Column(
-                          children: [
-                            isVis == true
-                                ? Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        "Code: ",
-                                        style: ralewayStyle(30),
-                                      ),
-                                      Text(
-                                        code,
-                                        style: montserratStyle(30, primary, FontWeight.w700),
-                                      ),
-                                    ],
-                                  )
-                                : Container(),
-                            SizedBox(
-                              height: 15,
-                            ),
-                            InkWell(
-                              onTap: generateMeetingCode,
-                              child: Container(
-                                width: size.width * 0.60,
-                                height: 50,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(15),
-                                  border: Border.all(color: red, width: 3),
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    "Create Code",
-                                    style: TextStyle(color: red, fontWeight: FontWeight.bold, fontSize: 17),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            SizedBox(
-                              height: 25,
-                            ),
-                            CheckboxListTile(
-                              activeColor: red,
-                              value: isVideoOff,
-                              onChanged: _onVideoMutedChanged,
-                              title: Text(
-                                "Video Off",
-                                style: Theme.of(context).primaryTextTheme.bodyText1,
-                              ),
-                            ),
-                            SizedBox(
-                              height: 5,
-                            ),
-                            CheckboxListTile(
-                              activeColor: red,
-                              value: isAudioMuted,
-                              onChanged: _onAudioMutedChanged,
-                              title: Text(
-                                "Audio Muted",
-                                style: Theme.of(context).primaryTextTheme.bodyText1,
-                              ),
-                            ),
                             SizedBox(
                               height: 40,
                             ),
-                            InkWell(
-                              onTap: () {
-                                upload();
-                                _notification();
-                                Navigator.pop(context);
-                              },
-                              child: Container(
-                                width: size.width * 0.60,
-                                height: 50,
-                                decoration: BoxDecoration(color: red, borderRadius: BorderRadius.circular(15), boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black26,
-                                    blurRadius: 5,
-                                    spreadRadius: 01,
-                                    offset: const Offset(0.0, 5.0),
-                                  )
-                                ]),
-                                child: Center(
-                                  child: Text(
-                                    "DONE",
-                                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.white),
+                            Container(
+                              color: notifier.darkTheme ? Colors.white : Colors.black,
+                              //height: 20,
+                              child: Padding(
+                                padding: const EdgeInsets.only(left: 16.0, right: 16),
+                                child: TextFormField(
+                                  controller: emailController,
+                                  style: Theme.of(context).primaryTextTheme.subtitle2,
+                                  decoration: InputDecoration(
+                                    hintText: 'Enter Meeting Name',
+                                    hintStyle: Theme.of(context).primaryTextTheme.bodyText2,
+                                    suffixIcon: Icon(
+                                      Icons.videocam,
+                                      color: Colors.grey,
+                                    ),
+                                    focusedBorder: UnderlineInputBorder(
+                                      borderSide: BorderSide(
+                                        color: primary,
+                                        width: 2.0,
+                                      ),
+                                    ),
+                                    enabledBorder: UnderlineInputBorder(
+                                        borderSide: BorderSide(
+                                      color: Colors.grey[300],
+                                      width: 2.0,
+                                    )),
                                   ),
+                                  validator: (value) {
+                                    setState(() {
+                                      if (isVis == false) {
+                                        validate = true;
+                                      }
+                                    });
+
+                                    if (value.isEmpty) {
+                                      return 'Enter Meeting Name*';
+                                    }
+                                    return null;
+                                  },
                                 ),
+                              ),
+                            ),
+                            Container(
+                              // height: size.height,
+                              color: notifier.darkTheme ? Colors.white : Colors.black,
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 16,
+                              ),
+                              child: Column(
+                                children: [
+                                  InkWell(
+                                      highlightColor: Colors.transparent,
+                                      splashColor: primary,
+                                      onTap: () {
+                                        _selectdate(context);
+                                      },
+                                      child: Row(
+                                        children: [
+                                          Text(
+                                            "Date",
+                                            style: Theme.of(context).primaryTextTheme.bodyText1,
+                                          ),
+                                          Spacer(),
+                                          ElevatedButton(
+                                            onPressed: () {
+                                              _selectdate(context);
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                              elevation: 0,
+                                              primary: Colors.transparent,
+                                              onPrimary: Colors.black45,
+                                            ),
+                                            child: Text(
+                                              '$_formattedate2 ',
+                                              style: Theme.of(context).primaryTextTheme.headline2,
+                                            ),
+                                          ),
+                                          Icon(
+                                            Icons.arrow_forward_ios,
+                                            color: Colors.grey,
+                                            size: 20,
+                                          )
+                                        ],
+                                      )),
+                                  Divider(
+                                    thickness: 1,
+                                    color: Colors.grey[300],
+                                  ),
+                                  InkWell(
+                                      highlightColor: Colors.transparent,
+                                      splashColor: primary,
+                                      onTap: () {
+                                        _selectTime(context);
+                                      },
+                                      child: Row(
+                                        children: [
+                                          Text(
+                                            "Time",
+                                            style: Theme.of(context).primaryTextTheme.bodyText1,
+                                          ),
+                                          Spacer(),
+                                          ElevatedButton(
+                                            onPressed: () {
+                                              _selectTime(context);
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                              elevation: 0,
+                                              primary: Colors.transparent,
+                                              onPrimary: Colors.black45,
+                                            ),
+                                            child: Text(
+                                              '$_formattime2 ',
+                                              style: Theme.of(context).primaryTextTheme.headline2,
+                                            ),
+                                          ),
+                                          Icon(
+                                            Icons.arrow_forward_ios,
+                                            color: Colors.grey,
+                                            size: 20,
+                                          )
+                                        ],
+                                      )),
+                                  Divider(
+                                    thickness: 1,
+                                    color: Colors.grey[300],
+                                  ),
+                                  /*   InkWell(
+                                      highlightColor: Colors.transparent,
+                                      splashColor: primary,
+                                      onTap: () {
+                                        _showSingleChoiceDialog(context);
+                                      },
+                                      child: Row(
+                                        children: [
+                                          Text(
+                                            "Repeat",
+                                            style: Theme.of(context).primaryTextTheme.bodyText1,
+                                          ),
+                                          Spacer(),
+                                          ElevatedButton(
+                                            onPressed: () {
+                                              _showSingleChoiceDialog(context);
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                              elevation: 0,
+                                              primary: Colors.transparent,
+                                              onPrimary: Colors.black45,
+                                            ),
+                                            child: Text(
+                                              '$_radioval ',
+                                              style: Theme.of(context).primaryTextTheme.headline2,
+                                            ),
+                                          ),
+                                          Icon(
+                                            Icons.arrow_forward_ios,
+                                            color: Colors.grey,
+                                            size: 20,
+                                          )
+                                        ],
+                                      )),
+                                  Divider(
+                                    thickness: 1,
+                                    color: Colors.grey[300],
+                                  ),
+                                  Visibility(
+                                      visible: isVisible,
+                                      child: InkWell(
+                                          highlightColor: Colors.transparent,
+                                          splashColor: primary,
+                                          onTap: () {
+                                            _enddate(context);
+                                          },
+                                          child: Row(
+                                            children: [
+                                              Text(
+                                                "End Repeat",
+                                                style: TextStyle(fontSize: 18, color: Colors.black),
+                                              ),
+                                              Spacer(),
+                                              ElevatedButton(
+                                                onPressed: () {
+                                                  _enddate(context);
+                                                },
+                                                style: ElevatedButton.styleFrom(
+                                                  elevation: 0,
+                                                  primary: Colors.white,
+                                                  onPrimary: Colors.black45,
+                                                ),
+                                                child: Text('$_endrepeat '),
+                                              ),
+                                              Icon(
+                                                Icons.arrow_forward_ios,
+                                                color: Colors.grey,
+                                                size: 20,
+                                              )
+                                            ],
+                                          ))),
+                                  Visibility(visible: isVisible, child: Divider(thickness: 1)), */
+                                  SizedBox(
+                                    height: 10,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            SizedBox(
+                              height: 20,
+                            ),
+                            Container(
+                                padding: EdgeInsets.only(left: 16, bottom: 10),
+                                alignment: Alignment.topLeft,
+                                child: Text('SECURITY', style: Theme.of(context).primaryTextTheme.subtitle2)),
+                            Container(
+                              color: notifier.darkTheme ? Colors.white : Colors.black,
+                              padding: EdgeInsets.only(top: 10),
+                              height: MediaQuery.of(context).size.height / 2,
+                              //height: size.height * 0.55,
+                              child: Column(
+                                children: [
+                                  isVis == true
+                                      ? Row(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              "Code: ",
+                                              style: ralewayStyle(30),
+                                            ),
+                                            Text(
+                                              code,
+                                              style: montserratStyle(30, primary, FontWeight.w700),
+                                            ),
+                                          ],
+                                        )
+                                      : Container(),
+                                  SizedBox(
+                                    height: 15,
+                                  ),
+                                  InkWell(
+                                    onTap: generateMeetingCode,
+                                    child: Container(
+                                      width: size.width * 0.60,
+                                      height: 50,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(15),
+                                        border: Border.all(color: red, width: 3),
+                                      ),
+                                      child: Center(
+                                        child: Text(
+                                          "Create Code",
+                                          style: TextStyle(color: red, fontWeight: FontWeight.bold, fontSize: 17),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 10,
+                                  ),
+                                  validate == true
+                                      ? Row(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              'Create Meeting Code*',
+                                              style: TextStyle(color: red, fontSize: 12),
+                                            )
+                                          ],
+                                        )
+                                      : Container(),
+                                  SizedBox(
+                                    height: 25,
+                                  ),
+                                  CheckboxListTile(
+                                    activeColor: red,
+                                    value: isVideoOff,
+                                    onChanged: _onVideoMutedChanged,
+                                    title: Text(
+                                      "Video Off",
+                                      style: Theme.of(context).primaryTextTheme.bodyText1,
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 5,
+                                  ),
+                                  CheckboxListTile(
+                                    activeColor: red,
+                                    value: isAudioMuted,
+                                    onChanged: _onAudioMutedChanged,
+                                    title: Text(
+                                      "Audio Muted",
+                                      style: Theme.of(context).primaryTextTheme.bodyText1,
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 40,
+                                  ),
+                                  InkWell(
+                                    onTap: () {
+                                      if (_formKey.currentState.validate()) {
+                                        setState(() {
+                                          isLoading = true;
+                                        });
+                                        if (isVis == true) {
+                                          if (validate == false) {
+                                            upload();
+                                            _notification();
+                                            Navigator.pop(context);
+                                          }
+                                        }
+                                      }
+                                    },
+                                    child: Container(
+                                      width: size.width * 0.60,
+                                      height: 50,
+                                      decoration: BoxDecoration(color: red, borderRadius: BorderRadius.circular(15), boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black26,
+                                          blurRadius: 5,
+                                          spreadRadius: 01,
+                                          offset: const Offset(0.0, 5.0),
+                                        )
+                                      ]),
+                                      child: Center(
+                                        child: Text(
+                                          "DONE",
+                                          style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.white),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ],
                         ),
                       ),
-                    ],
-                  ),
-                ),
-              )),
+                    )),
+              ),
             ));
   }
 
@@ -586,6 +628,7 @@ class _SchedulemeetingState extends State<Schedulemeeting> {
     });
   }
 
+  // ignore: unused_element
   _joinMeeting() async {
     String serverUrl = serverText.text?.trim()?.isEmpty ?? "" ? null : serverText.text;
 
@@ -651,7 +694,7 @@ class _SchedulemeetingState extends State<Schedulemeeting> {
       return value.trim().length <= 50;
     }, "Maximum room name length should be 30."),
     RoomNameConstraintType.FORBIDDEN_CHARS: new RoomNameConstraint((value) {
-      return RegExp(r"[$€£]+", caseSensitive: false, multiLine: false).hasMatch(value) == false;
+      return RegExp(r"[$€£]+", caseSensitive: false, multiLine: true).hasMatch(value) == false;
     }, "Currencies characters aren't allowed in room names."),
   };
 

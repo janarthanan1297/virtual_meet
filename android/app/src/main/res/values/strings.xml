@@ -10,4 +10,5 @@
       **NOTE**: The scheme needs to start with `fb` and then your ID.
     -->
     <string name="fb_login_protocol_scheme">fb898469967596764</string>
+    <string name="dropbox_app_key">emvypfapkws91jf</string>
 </resources>

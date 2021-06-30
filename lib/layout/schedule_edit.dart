@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -27,6 +28,7 @@ class _MeetingDetailsState extends State<MeetingDetails> {
   int i;
   _MeetingDetailsState(this.i);
   bool isVideoOff = true;
+  List list;
   bool isAudioMuted = true;
   bool isVisible = false;
   String code = "";
@@ -329,9 +331,14 @@ class _MeetingDetailsState extends State<MeetingDetails> {
     });
   }
 
+  getParticipants(List value) {
+    setState(() {
+      list = value;
+    });
+  }
+
   _joinMeeting() async {
     String serverUrl = serverText.text?.trim()?.isEmpty ?? "" ? null : serverText.text;
-
     try {
       FeatureFlag featureFlag = FeatureFlag();
       featureFlag.welcomePageEnabled = false;
@@ -364,8 +371,10 @@ class _MeetingDetailsState extends State<MeetingDetails> {
           debugPrint("${options.room} will join with message: $message");
         }, onConferenceJoined: ({message}) {
           upload();
+          getParticipants;
           debugPrint("${options.room} joined with message: $message");
         }, onConferenceTerminated: ({message}) {
+          debugPrint("------------------------------------**************$list");
           delete();
           Fluttertoast.showToast(msg: 'Meeting Ended', toastLength: Toast.LENGTH_SHORT, gravity: ToastGravity.BOTTOM);
           debugPrint("${options.room} terminated with message: $message");
@@ -385,7 +394,7 @@ class _MeetingDetailsState extends State<MeetingDetails> {
       return value.trim().length <= 50;
     }, "Maximum room name length should be 30."),
     RoomNameConstraintType.FORBIDDEN_CHARS: new RoomNameConstraint((value) {
-      return RegExp(r"[$€£]+", caseSensitive: false, multiLine: false).hasMatch(value) == false;
+      return RegExp(r"[$€£]+", caseSensitive: false, multiLine: true).hasMatch(value) == false;
     }, "Currencies characters aren't allowed in room names."),
   };
 

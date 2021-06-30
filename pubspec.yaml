@@ -24,7 +24,6 @@ dependencies:
   flutter:
     sdk: flutter
   provider:
-  cupertino_icons: ^1.0.0
   shared_preferences: 
   carousel_slider:
   flutter_icons: ^1.1.0
@@ -41,9 +40,11 @@ dependencies:
   jitsi_meet: ^2.0.0
   fluttertoast: ^7.1.4
   share: ^2.0.1
-  firebase_dynamic_links: ^0.6.3
+  firebase_dynamic_links: 
   flutter_local_notifications:
   flutter_local_notifications_platform_interface:
+  syncfusion_flutter_xlsio: 
+  open_file: 
   path_provider: ^2.0.0
   rxdart: ^0.26.0-nullsafety.1
   ndialog: ^4.1.0
@@ -51,7 +52,6 @@ dependencies:
   firebase_core :
   cloud_firestore:
   timeline_tile: ^2.0.0
-  flutter_restart: ^0.0.3
   liquid_progress_indicator: ^0.3.2
   move_to_background: ^1.0.2
   uuid:

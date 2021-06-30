@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+// ignore: implementation_imports
 import 'package:flutter_local_notifications_platform_interface/src/notification_app_launch_details.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'package:provider/provider.dart';
@@ -50,7 +51,7 @@ class _LoginState extends State<Login> {
                         child: FadeAnimation(
                             1.4,
                             Container(
-                              decoration: BoxDecoration(image: DecorationImage(image: AssetImage('asset/images/background.png'), fit: BoxFit.fill)),
+                              decoration: BoxDecoration(image: DecorationImage(image: AssetImage('asset/images/background.webp'), fit: BoxFit.fill)),
                             )),
                       ),
                       Positioned(
@@ -59,7 +60,8 @@ class _LoginState extends State<Login> {
                         child: FadeAnimation(
                             1.7,
                             Container(
-                              decoration: BoxDecoration(image: DecorationImage(image: AssetImage('asset/images/background-2.png'), fit: BoxFit.fill)),
+                              decoration:
+                                  BoxDecoration(image: DecorationImage(image: AssetImage('asset/images/background-2.webp'), fit: BoxFit.fill)),
                             )),
                       ),
                       Positioned(
@@ -309,7 +311,7 @@ class _LoginState extends State<Login> {
                       child: FadeAnimation(
                           1.12,
                           Container(
-                              width: size.width * 0.60,
+                              width: size.width * 0.53,
                               height: 50,
                               child: SignInButton(
                                 Buttons.Google,
@@ -335,7 +337,7 @@ class _LoginState extends State<Login> {
                           1.12,
                           Container(
                               alignment: Alignment.center,
-                              width: size.width * 0.60,
+                              width: size.width * 0.53,
                               height: 50,
                               child: SignInButton(
                                 Buttons.FacebookNew,
@@ -385,6 +387,7 @@ class _LoginState extends State<Login> {
 
   void logInToEmail() async {
     try {
+      // ignore: unused_local_variable
       UserCredential userCredential =
           await FirebaseAuth.instance.signInWithEmailAndPassword(email: emailController.text.trim(), password: passwordController.text.trim());
       Navigator.pushReplacement(
@@ -474,7 +477,7 @@ class Resetpassword extends StatelessWidget {
                         child: FadeAnimation(
                             1.4,
                             Container(
-                              decoration: BoxDecoration(image: DecorationImage(image: AssetImage('asset/images/background.png'), fit: BoxFit.fill)),
+                              decoration: BoxDecoration(image: DecorationImage(image: AssetImage('asset/images/background.webp'), fit: BoxFit.fill)),
                             )),
                       ),
                       Positioned(
@@ -483,7 +486,8 @@ class Resetpassword extends StatelessWidget {
                         child: FadeAnimation(
                             1.7,
                             Container(
-                              decoration: BoxDecoration(image: DecorationImage(image: AssetImage('asset/images/background-2.png'), fit: BoxFit.fill)),
+                              decoration:
+                                  BoxDecoration(image: DecorationImage(image: AssetImage('asset/images/background-2.webp'), fit: BoxFit.fill)),
                             )),
                       ),
                       Positioned(

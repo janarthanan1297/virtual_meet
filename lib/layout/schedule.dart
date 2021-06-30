@@ -42,7 +42,6 @@ class _ScheduleState extends State<Schedule> {
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
-    final textTheme = Theme.of(context).textTheme;
     return Scaffold(
       body: Container(
         padding: EdgeInsets.symmetric(

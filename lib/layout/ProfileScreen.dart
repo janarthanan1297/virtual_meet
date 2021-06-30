@@ -6,7 +6,6 @@ import 'package:provider/provider.dart';
 import 'package:shrink_sidemenu/shrink_sidemenu.dart';
 import 'package:virtual_classroom_meet/layout/calender.dart';
 import 'package:virtual_classroom_meet/layout/schedule.dart';
-import 'package:virtual_classroom_meet/layout/meeting_screen.dart';
 import 'package:virtual_classroom_meet/layout/setting.dart';
 import 'package:virtual_classroom_meet/main.dart';
 import 'package:virtual_classroom_meet/res/color.dart';
@@ -25,7 +24,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
   tabBuilder(String name) {
     return Container(
       width: 150,
-      height: 50,
+      height: 60,
       color: Colors.transparent,
       child: Card(
         elevation: 0,

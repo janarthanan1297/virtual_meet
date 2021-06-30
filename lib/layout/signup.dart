@@ -48,7 +48,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           child: FadeAnimation(
                               1.4,
                               Container(
-                                decoration: BoxDecoration(image: DecorationImage(image: AssetImage('asset/images/background.png'), fit: BoxFit.fill)),
+                                decoration:
+                                    BoxDecoration(image: DecorationImage(image: AssetImage('asset/images/background.webp'), fit: BoxFit.fill)),
                               )),
                         ),
                         Positioned(
@@ -58,7 +59,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               1.7,
                               Container(
                                 decoration:
-                                    BoxDecoration(image: DecorationImage(image: AssetImage('asset/images/background-2.png'), fit: BoxFit.fill)),
+                                    BoxDecoration(image: DecorationImage(image: AssetImage('asset/images/background-2.webp'), fit: BoxFit.fill)),
                               )),
                         ),
                         Positioned(

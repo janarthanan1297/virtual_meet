@@ -8,9 +8,10 @@ const Color primary = Color(0xFF792ffd);
 const Color red = Color(0xFFd72c21);
 const Color red1 = Color(0xFFfddad9);
 const Color green = Color(0xFF22d759);
+const Color green1 = Color(0xFFdcefdc);
 const Color grey = Color(0xFF727176);
 
-TextStyle ralewayStyle(double size,[Color color, FontWeight fontWeight = FontWeight.w700]) {
+TextStyle ralewayStyle(double size, [Color color, FontWeight fontWeight = FontWeight.w700]) {
   return GoogleFonts.raleway(
     fontSize: size,
     color: color,
@@ -18,7 +19,7 @@ TextStyle ralewayStyle(double size,[Color color, FontWeight fontWeight = FontWei
   );
 }
 
-TextStyle montserratStyle(double size,[Color color, FontWeight fontWeight = FontWeight.w700]) {
+TextStyle montserratStyle(double size, [Color color, FontWeight fontWeight = FontWeight.w700]) {
   return GoogleFonts.montserrat(
     fontSize: size,
     color: color,

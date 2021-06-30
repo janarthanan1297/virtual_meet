@@ -5,6 +5,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:virtual_classroom_meet/layout/ProfileScreen.dart';
+import 'package:virtual_classroom_meet/layout/history.dart';
 import 'package:virtual_classroom_meet/layout/join_meeting.dart';
 import 'package:virtual_classroom_meet/layout/meeting_screen.dart';
 import 'package:virtual_classroom_meet/res/color.dart';
@@ -28,6 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
   List pageOptions = [
     MeetingScreen(),
     ProfileScreen(),
+    History(),
   ];
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
@@ -120,6 +122,19 @@ class _HomeScreenState extends State<HomeScreen> {
                         size: 20,
                       ),
                       title: Text("Schedule")),
+                  BubbleBottomBarItem(
+                      backgroundColor: Colors.green,
+                      icon: FaIcon(
+                        FontAwesomeIcons.history,
+                        color: notifier.darkTheme ? Colors.black : Colors.white,
+                        size: 20,
+                      ),
+                      activeIcon: FaIcon(
+                        FontAwesomeIcons.history,
+                        color: Colors.green,
+                        size: 20,
+                      ),
+                      title: Text("History")),
                 ],
               )),
       body: pageOptions[page],

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:date_format/date_format.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -11,11 +12,10 @@ import 'package:jitsi_meet/room_name_constraint.dart';
 import 'package:jitsi_meet/room_name_constraint_type.dart';
 import 'package:provider/provider.dart';
 import 'package:share/share.dart';
-import 'package:virtual_classroom_meet/layout/home.dart';
-import 'package:virtual_classroom_meet/main.dart';
 import 'package:virtual_classroom_meet/res/color.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:virtual_classroom_meet/res/theme.dart';
+import 'package:intl/intl.dart';
 
 class JoinMeeting extends StatefulWidget {
   JoinMeeting(
@@ -36,12 +36,16 @@ class JoinMeetingState extends State<JoinMeeting> {
   String value;
   String date;
   String time;
+  String _formattedate2;
+  DateTime _currentdate = new DateTime.now();
+  String _formattime2;
   String subject;
   String _payload;
   int length, j;
   var isVis = false;
   TimeOfDay selectedTime = TimeOfDay.now();
   String username = FirebaseAuth.instance.currentUser.displayName;
+  String id = FirebaseAuth.instance.currentUser.uid;
   String email = FirebaseAuth.instance.currentUser.email;
   String profile = FirebaseAuth.instance.currentUser.photoURL;
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
@@ -54,6 +58,25 @@ class JoinMeetingState extends State<JoinMeeting> {
   upload() async {
     await FirebaseFirestore.instance.collection('meeting').add({
       'code': code,
+    });
+
+    _formattedate2 = new DateFormat.yMMMd().format(_currentdate);
+    _formattime2 = formatDate(DateTime(2019, 08, 1, DateTime.now().hour, DateTime.now().minute), [hh, ':', nn, " ", am]).toString();
+    await FirebaseFirestore.instance.collection('$id').doc('$code').set({
+      'meeting name': subject,
+      'code': code,
+      'date': _formattedate2,
+      'time': _formattime2,
+    });
+  }
+
+  upload2() async {
+    _formattime2 = formatDate(DateTime(2019, 08, 1, DateTime.now().hour, DateTime.now().minute), [hh, ':', nn, " ", am]).toString();
+    await FirebaseFirestore.instance.collection('$code').add({
+      'code': code,
+      'user name': username,
+      'email': email,
+      'time': _formattime2,
     });
   }
 
@@ -382,6 +405,7 @@ class JoinMeetingState extends State<JoinMeeting> {
           debugPrint("${options.room} will join with message: $message");
         }, onConferenceJoined: ({message}) {
           upload();
+          upload2();
           debugPrint("${options.room} joined with message: $message");
         }, onConferenceTerminated: ({message}) {
           delete();
