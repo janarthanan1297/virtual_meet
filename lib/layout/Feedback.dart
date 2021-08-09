@@ -278,6 +278,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 30.0),
       child: TextField(
+        enabled: false,
+        enableInteractiveSelection: false,
         obscureText: isPasswordTextField ? showPassword : false,
         decoration: InputDecoration(
           suffixIcon: isPasswordTextField

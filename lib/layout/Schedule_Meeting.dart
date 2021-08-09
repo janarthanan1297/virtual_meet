@@ -9,7 +9,6 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:jitsi_meet/feature_flag/feature_flag.dart';
 import 'package:jitsi_meet/jitsi_meet.dart';
-import 'package:jitsi_meet/jitsi_meeting_listener.dart';
 import 'package:jitsi_meet/room_name_constraint.dart';
 import 'package:jitsi_meet/room_name_constraint_type.dart';
 import 'package:provider/provider.dart';
@@ -212,11 +211,11 @@ class _SchedulemeetingState extends State<Schedulemeeting> {
     _formattime = formatDate(DateTime(2019, 08, 1, DateTime.now().hour, DateTime.now().minute), [HH, ':', nn]).toString();
     _formattime2 = formatDate(DateTime(2019, 08, 1, DateTime.now().hour, DateTime.now().minute), [hh, ':', nn, " ", am]).toString();
     JitsiMeet.addListener(JitsiMeetingListener(
-        onConferenceWillJoin: _onConferenceWillJoin,
-        onConferenceJoined: _onConferenceJoined,
-        onConferenceTerminated: _onConferenceTerminated,
-        onPictureInPictureWillEnter: _onPictureInPictureWillEnter,
-        onPictureInPictureTerminated: _onPictureInPictureTerminated,
+        onConferenceWillJoin: _onConferenceWillJoin(),
+        onConferenceJoined: _onConferenceJoined(),
+        onConferenceTerminated: _onConferenceTerminated(),
+        onPictureInPictureWillEnter: _onPictureInPictureWillEnter(),
+        onPictureInPictureTerminated: _onPictureInPictureTerminated(),
         onError: _onError));
   }
 
@@ -633,6 +632,12 @@ class _SchedulemeetingState extends State<Schedulemeeting> {
     String serverUrl = serverText.text?.trim()?.isEmpty ?? "" ? null : serverText.text;
 
     try {
+      Map<FeatureFlagEnum, bool> featureFlags = {
+        FeatureFlagEnum.WELCOME_PAGE_ENABLED: false,
+        FeatureFlagEnum.INVITE_ENABLED: false,
+        FeatureFlagEnum.CLOSE_CAPTIONS_ENABLED: true,
+        FeatureFlagEnum.CALENDAR_ENABLED: true,
+      };
       FeatureFlag featureFlag = FeatureFlag();
       featureFlag.welcomePageEnabled = false;
       featureFlag.meetingPasswordEnabled = true;
@@ -648,8 +653,7 @@ class _SchedulemeetingState extends State<Schedulemeeting> {
       featureFlag.resolution = FeatureFlagVideoResolution.MD_RESOLUTION;
 
       // Define meetings options here
-      var options = JitsiMeetingOptions()
-        ..room = code
+      var options = JitsiMeetingOptions(room: code)
         ..serverURL = serverUrl
         ..subject = emailController.text + "  code-" + code
         ..userDisplayName = username
@@ -658,16 +662,16 @@ class _SchedulemeetingState extends State<Schedulemeeting> {
         ..audioOnly = isAudioOnly
         ..audioMuted = isAudioMuted
         ..videoMuted = isVideoOff
-        ..featureFlag = featureFlag;
+        ..featureFlags.addAll(featureFlags);
 
       debugPrint("JitsiMeetingOptions: $options");
       await JitsiMeet.joinMeeting(
         options,
-        listener: JitsiMeetingListener(onConferenceWillJoin: ({message}) {
+        listener: JitsiMeetingListener(onConferenceWillJoin: (message) {
           debugPrint("${options.room} will join with message: $message");
-        }, onConferenceJoined: ({message}) {
+        }, onConferenceJoined: (message) {
           debugPrint("${options.room} joined with message: $message");
-        }, onConferenceTerminated: ({message}) {
+        }, onConferenceTerminated: (message) {
           Fluttertoast.showToast(msg: 'Meeting Ended', toastLength: Toast.LENGTH_SHORT, gravity: ToastGravity.BOTTOM);
 
           Navigator.push(
@@ -675,9 +679,9 @@ class _SchedulemeetingState extends State<Schedulemeeting> {
             MaterialPageRoute(builder: (context) => HomeScreen(notificationAppLaunchDetails)),
           );
           debugPrint("${options.room} terminated with message: $message");
-        }, onPictureInPictureWillEnter: ({message}) {
+        }, onPictureInPictureWillEnter: (message) {
           debugPrint("${options.room} entered PIP mode with message: $message");
-        }, onPictureInPictureTerminated: ({message}) {
+        }, onPictureInPictureTerminated: (message) {
           debugPrint("${options.room} exited PIP mode with message: $message");
         }),
         // by default, plugin default constraints are used
@@ -698,23 +702,23 @@ class _SchedulemeetingState extends State<Schedulemeeting> {
     }, "Currencies characters aren't allowed in room names."),
   };
 
-  void _onConferenceWillJoin({message}) {
+  _onConferenceWillJoin({message}) {
     debugPrint("_onConferenceWillJoin broadcasted with message: $message");
   }
 
-  void _onConferenceJoined({message}) {
+  _onConferenceJoined({message}) {
     debugPrint("_onConferenceJoined broadcasted with message: $message");
   }
 
-  void _onConferenceTerminated({message}) {
+  _onConferenceTerminated({message}) {
     debugPrint("_onConferenceTerminated broadcasted with message: $message");
   }
 
-  void _onPictureInPictureWillEnter({message}) {
+  _onPictureInPictureWillEnter({message}) {
     debugPrint("_onPictureInPictureWillEnter broadcasted with message: $message");
   }
 
-  void _onPictureInPictureTerminated({message}) {
+  _onPictureInPictureTerminated({message}) {
     debugPrint("_onPictureInPictureTerminated broadcasted with message: $message");
   }
 

@@ -10,6 +10,7 @@ import 'package:rxdart/subjects.dart';
 import 'package:virtual_classroom_meet/layout/home.dart';
 import 'package:virtual_classroom_meet/layout/join_meeting.dart';
 import 'package:virtual_classroom_meet/layout/landing.dart';
+import 'package:virtual_classroom_meet/res/connectivity_provider.dart';
 //import 'routes.dart';
 import 'res/theme.dart';
 import 'package:provider/provider.dart';
@@ -101,19 +102,21 @@ class _MyAppState extends State<MyApp> {
                     MoveToBackground.moveTaskToBack();
                     return false;
                   },
-                  child: MaterialApp(
-                    darkTheme: ThemeData.dark(),
-                    themeMode: ThemeMode.light,
-                    theme: notifier.darkTheme ? light : dark,
-                    debugShowCheckedModeBanner: false,
-                    initialRoute: (user == null) ? Landing.routeName : initialRoute,
-                    routes: <String, WidgetBuilder>{
-                      HomeScreen.routeName: (_) => HomeScreen(notificationAppLaunchDetails),
-                      JoinMeeting.routeName: (_) => JoinMeeting(selectedNotificationPayload),
-                      Landing.routeName: (_) => Landing()
-                    },
-                    //home: (user == null) ? Landing() : initialRoute
-                  ));
+                  child: ChangeNotifierProvider(
+                      create: (context) => ConnectivityProvider(),
+                      child: MaterialApp(
+                        darkTheme: ThemeData.dark(),
+                        themeMode: ThemeMode.light,
+                        theme: notifier.darkTheme ? light : dark,
+                        debugShowCheckedModeBanner: false,
+                        initialRoute: (user == null) ? Landing.routeName : initialRoute,
+                        routes: <String, WidgetBuilder>{
+                          HomeScreen.routeName: (_) => HomeScreen(notificationAppLaunchDetails),
+                          JoinMeeting.routeName: (_) => JoinMeeting(selectedNotificationPayload),
+                          Landing.routeName: (_) => Landing()
+                        },
+                        //home: (user == null) ? Landing() : initialRoute
+                      )));
             }));
       });
     });

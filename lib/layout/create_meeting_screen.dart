@@ -10,7 +10,7 @@ import 'package:uuid/uuid.dart';
 import 'package:virtual_classroom_meet/res/color.dart';
 import 'package:jitsi_meet/feature_flag/feature_flag.dart';
 import 'package:jitsi_meet/jitsi_meet.dart';
-import 'package:jitsi_meet/jitsi_meeting_listener.dart';
+import 'package:flutter/foundation.dart';
 import 'package:jitsi_meet/room_name_constraint.dart';
 import 'package:jitsi_meet/room_name_constraint_type.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -58,11 +58,11 @@ class _CreateMeeetingScreenState extends State<CreateMeeetingScreen> {
   void initState() {
     super.initState();
     JitsiMeet.addListener(JitsiMeetingListener(
-        onConferenceWillJoin: _onConferenceWillJoin,
-        onConferenceJoined: _onConferenceJoined,
-        onConferenceTerminated: _onConferenceTerminated,
-        onPictureInPictureWillEnter: _onPictureInPictureWillEnter,
-        onPictureInPictureTerminated: _onPictureInPictureTerminated,
+        onConferenceWillJoin: _onConferenceWillJoin(),
+        onConferenceJoined: _onConferenceJoined(),
+        onConferenceTerminated: _onConferenceTerminated(),
+        onPictureInPictureWillEnter: _onPictureInPictureWillEnter(),
+        onPictureInPictureTerminated: _onPictureInPictureTerminated(),
         onError: _onError));
   }
 
@@ -78,6 +78,7 @@ class _CreateMeeetingScreenState extends State<CreateMeeetingScreen> {
       'code': code,
       'date': _formattedate2,
       'time': _formattime2,
+      'datetime': _currentdate,
     });
   }
 
@@ -360,53 +361,67 @@ class _CreateMeeetingScreenState extends State<CreateMeeetingScreen> {
   _joinMeeting() async {
     String serverUrl = 'https://meet.jit.si';
 
-    try {
-      FeatureFlag featureFlag = FeatureFlag();
+    Map<FeatureFlagEnum, bool> featureFlags = {
+      FeatureFlagEnum.WELCOME_PAGE_ENABLED: false,
+      FeatureFlagEnum.INVITE_ENABLED: false,
+      FeatureFlagEnum.CLOSE_CAPTIONS_ENABLED: true,
+      FeatureFlagEnum.CALENDAR_ENABLED: true,
+    };
+
+    FeatureFlag featureFlag = FeatureFlag();
+    featureFlag.welcomePageEnabled = false;
+    featureFlag.meetingPasswordEnabled = true;
+    featureFlag.inviteEnabled = false;
+    if (Platform.isAndroid) {
+      featureFlag.callIntegrationEnabled = false;
       featureFlag.welcomePageEnabled = false;
-      featureFlag.meetingPasswordEnabled = true;
-      featureFlag.inviteEnabled = false;
-      if (Platform.isAndroid) {
-        featureFlag.callIntegrationEnabled = false;
-        featureFlag.welcomePageEnabled = false;
-      } else if (Platform.isIOS) {
-        featureFlag.pipEnabled = false;
-      }
-      featureFlag.resolution = FeatureFlagVideoResolution.MD_RESOLUTION;
-
-      var options = JitsiMeetingOptions()
-        ..room = code
-        ..serverURL = serverUrl
-        ..subject = subjectText.text + "  code-" + code
-        ..userDisplayName = username
-        ..userEmail = email
-        ..userAvatarURL = profile
-        ..audioOnly = isAudioOnly
-        ..audioMuted = isAudioMuted
-        ..videoMuted = isVideoMuted
-        ..featureFlag = featureFlag;
-
-      debugPrint("JitsiMeetingOptions: $options");
-      await JitsiMeet.joinMeeting(
-        options,
-        listener: JitsiMeetingListener(onConferenceWillJoin: ({message}) {
-          debugPrint("${options.room} will join with message: $message");
-        }, onConferenceJoined: ({message}) {
-          upload();
-          upload2();
-          debugPrint("${options.room} joined with message: $message");
-        }, onConferenceTerminated: ({message}) {
-          delete();
-          Fluttertoast.showToast(msg: 'Meeting Ended', toastLength: Toast.LENGTH_SHORT, gravity: ToastGravity.BOTTOM);
-          debugPrint("${options.room} terminated with message: $message");
-        }, onPictureInPictureWillEnter: ({message}) {
-          debugPrint("${options.room} entered PIP mode with message: $message");
-        }, onPictureInPictureTerminated: ({message}) {
-          debugPrint("${options.room} exited PIP mode with message: $message");
-        }),
-      );
-    } catch (error) {
-      debugPrint("error: $error");
+    } else if (Platform.isIOS) {
+      featureFlag.pipEnabled = false;
     }
+    featureFlag.resolution = FeatureFlagVideoResolution.MD_RESOLUTION;
+
+    var options = JitsiMeetingOptions(room: code)
+      ..serverURL = serverUrl
+      ..subject = subjectText.text + "  code-" + code
+      ..userDisplayName = username
+      ..userEmail = email
+      ..userAvatarURL = profile
+      ..audioOnly = isAudioOnly
+      ..audioMuted = isAudioMuted
+      ..videoMuted = isVideoMuted
+      ..featureFlags.addAll(featureFlags);
+
+    debugPrint("JitsiMeetingOptions: $options");
+    await JitsiMeet.joinMeeting(
+      options,
+      listener: JitsiMeetingListener(
+          onConferenceWillJoin: (message) {
+            debugPrint("${options.room} will join with message: $message");
+          },
+          onConferenceJoined: (message) {
+            upload();
+            upload2();
+            debugPrint("${options.room} joined with message: $message");
+          },
+          onConferenceTerminated: (message) {
+            delete();
+            Fluttertoast.showToast(msg: 'Meeting Ended', toastLength: Toast.LENGTH_SHORT, gravity: ToastGravity.BOTTOM);
+            debugPrint("${options.room} terminated with message: $message");
+          },
+          onPictureInPictureWillEnter: (message) {
+            debugPrint("${options.room} entered PIP mode with message: $message");
+          },
+          onPictureInPictureTerminated: (message) {
+            debugPrint("${options.room} exited PIP mode with message: $message");
+          },
+          genericListeners: [
+            JitsiGenericListener(
+                eventName: 'readyToClose',
+                callback: (dynamic message) {
+                  debugPrint("readyToClose callback");
+                }),
+          ]),
+    );
   }
 
   // ignore: unused_field
@@ -419,23 +434,23 @@ class _CreateMeeetingScreenState extends State<CreateMeeetingScreen> {
     }, "Currencies characters aren't allowed in room names."),
   };
 
-  void _onConferenceWillJoin({message}) {
+  _onConferenceWillJoin({message}) {
     debugPrint("_onConferenceWillJoin broadcasted with message: $message");
   }
 
-  void _onConferenceJoined({message}) {
+  _onConferenceJoined({message}) {
     debugPrint("_onConferenceJoined broadcasted with message: $message");
   }
 
-  void _onConferenceTerminated({message}) {
+  _onConferenceTerminated({message}) {
     debugPrint("_onConferenceTerminated broadcasted with message: $message");
   }
 
-  void _onPictureInPictureWillEnter({message}) {
+  _onPictureInPictureWillEnter({message}) {
     debugPrint("_onPictureInPictureWillEnter broadcasted with message: $message");
   }
 
-  void _onPictureInPictureTerminated({message}) {
+  _onPictureInPictureTerminated({message}) {
     debugPrint("_onPictureInPictureTerminated broadcasted with message: $message");
   }
 

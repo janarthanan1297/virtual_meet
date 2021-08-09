@@ -7,7 +7,6 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:jitsi_meet/feature_flag/feature_flag.dart';
 import 'package:jitsi_meet/jitsi_meet.dart';
-import 'package:jitsi_meet/jitsi_meeting_listener.dart';
 import 'package:jitsi_meet/room_name_constraint.dart';
 import 'package:jitsi_meet/room_name_constraint_type.dart';
 import 'package:provider/provider.dart';
@@ -93,11 +92,11 @@ class JoinMeetingState extends State<JoinMeeting> {
     super.initState();
     _payload = widget.payload;
     JitsiMeet.addListener(JitsiMeetingListener(
-        onConferenceWillJoin: _onConferenceWillJoin,
-        onConferenceJoined: _onConferenceJoined,
-        onConferenceTerminated: _onConferenceTerminated,
-        onPictureInPictureWillEnter: _onPictureInPictureWillEnter,
-        onPictureInPictureTerminated: _onPictureInPictureTerminated,
+        onConferenceWillJoin: _onConferenceWillJoin(),
+        onConferenceJoined: _onConferenceJoined(),
+        onConferenceTerminated: _onConferenceTerminated(),
+        onPictureInPictureWillEnter: _onPictureInPictureWillEnter(),
+        onPictureInPictureTerminated: _onPictureInPictureTerminated(),
         onError: _onError));
   }
 
@@ -374,6 +373,13 @@ class JoinMeetingState extends State<JoinMeeting> {
     String serverUrl = serverText.text?.trim()?.isEmpty ?? "" ? null : serverText.text;
 
     try {
+      Map<FeatureFlagEnum, bool> featureFlags = {
+        FeatureFlagEnum.WELCOME_PAGE_ENABLED: false,
+        FeatureFlagEnum.INVITE_ENABLED: false,
+        FeatureFlagEnum.CLOSE_CAPTIONS_ENABLED: true,
+        FeatureFlagEnum.CALENDAR_ENABLED: true,
+      };
+
       FeatureFlag featureFlag = FeatureFlag();
       featureFlag.welcomePageEnabled = false;
       featureFlag.meetingPasswordEnabled = true;
@@ -386,8 +392,7 @@ class JoinMeetingState extends State<JoinMeeting> {
       }
       featureFlag.resolution = FeatureFlagVideoResolution.MD_RESOLUTION;
 
-      var options = JitsiMeetingOptions()
-        ..room = code
+      var options = JitsiMeetingOptions(room: code)
         ..serverURL = serverUrl
         ..subject = subject + "  code-" + code
         ..userDisplayName = username
@@ -396,24 +401,24 @@ class JoinMeetingState extends State<JoinMeeting> {
         ..audioOnly = isAudioOnly
         ..audioMuted = isAudioMuted
         ..videoMuted = isVideoOff
-        ..featureFlag = featureFlag;
+        ..featureFlags.addAll(featureFlags);
 
       debugPrint("JitsiMeetingOptions: $options");
       await JitsiMeet.joinMeeting(
         options,
-        listener: JitsiMeetingListener(onConferenceWillJoin: ({message}) {
+        listener: JitsiMeetingListener(onConferenceWillJoin: (message) {
           debugPrint("${options.room} will join with message: $message");
-        }, onConferenceJoined: ({message}) {
+        }, onConferenceJoined: (message) {
           upload();
           upload2();
           debugPrint("${options.room} joined with message: $message");
-        }, onConferenceTerminated: ({message}) {
+        }, onConferenceTerminated: (message) {
           delete();
           Fluttertoast.showToast(msg: 'Meeting Ended', toastLength: Toast.LENGTH_SHORT, gravity: ToastGravity.BOTTOM);
           debugPrint("${options.room} terminated with message: $message");
-        }, onPictureInPictureWillEnter: ({message}) {
+        }, onPictureInPictureWillEnter: (message) {
           debugPrint("${options.room} entered PIP mode with message: $message");
-        }, onPictureInPictureTerminated: ({message}) {
+        }, onPictureInPictureTerminated: (message) {
           debugPrint("${options.room} exited PIP mode with message: $message");
         }),
       );
@@ -431,23 +436,23 @@ class JoinMeetingState extends State<JoinMeeting> {
     }, "Currencies characters aren't allowed in room names."),
   };
 
-  void _onConferenceWillJoin({message}) {
+  _onConferenceWillJoin({message}) {
     debugPrint("_onConferenceWillJoin broadcasted with message: $message");
   }
 
-  void _onConferenceJoined({message}) {
+  _onConferenceJoined({message}) {
     debugPrint("_onConferenceJoined broadcasted with message: $message");
   }
 
-  void _onConferenceTerminated({message}) {
+  _onConferenceTerminated({message}) {
     debugPrint("_onConferenceTerminated broadcasted with message: $message");
   }
 
-  void _onPictureInPictureWillEnter({message}) {
+  _onPictureInPictureWillEnter({message}) {
     debugPrint("_onPictureInPictureWillEnter broadcasted with message: $message");
   }
 
-  void _onPictureInPictureTerminated({message}) {
+  _onPictureInPictureTerminated({message}) {
     debugPrint("_onPictureInPictureTerminated broadcasted with message: $message");
   }
 

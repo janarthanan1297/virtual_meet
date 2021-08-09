@@ -103,7 +103,7 @@ class _HistoryState extends State<History> {
                 ),
                 Expanded(
                   child: StreamBuilder(
-                      stream: FirebaseFirestore.instance.collection('$id').orderBy('time', descending: true).snapshots(),
+                      stream: FirebaseFirestore.instance.collection('$id').orderBy('datetime', descending: true).snapshots(),
                       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
                         if (!snapshot.hasData) {
                           return Center(

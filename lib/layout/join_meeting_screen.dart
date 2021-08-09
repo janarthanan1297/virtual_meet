@@ -7,11 +7,9 @@ import "package:flutter/material.dart";
 import 'package:flutter_local_notifications_platform_interface/src/notification_app_launch_details.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:jitsi_meet/feature_flag/feature_flag.dart';
-import 'package:jitsi_meet/jitsi_meeting_listener.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:virtual_classroom_meet/layout/home.dart';
 import 'package:virtual_classroom_meet/res/color.dart';
-import 'package:jitsi_meet/feature_flag/feature_flag_enum.dart';
 import 'package:jitsi_meet/jitsi_meet.dart';
 import 'package:jitsi_meet/room_name_constraint.dart';
 import 'package:jitsi_meet/room_name_constraint_type.dart';
@@ -47,11 +45,11 @@ class _JoinMeetingScreenState extends State<JoinMeetingScreen> {
     super.initState();
     //getData();
     JitsiMeet.addListener(JitsiMeetingListener(
-        onConferenceWillJoin: _onConferenceWillJoin,
-        onConferenceJoined: _onConferenceJoined,
-        onConferenceTerminated: _onConferenceTerminated,
-        onPictureInPictureWillEnter: _onPictureInPictureWillEnter,
-        onPictureInPictureTerminated: _onPictureInPictureTerminated,
+        onConferenceWillJoin: _onConferenceWillJoin(),
+        onConferenceJoined: _onConferenceJoined(),
+        onConferenceTerminated: _onConferenceTerminated(),
+        onPictureInPictureWillEnter: _onPictureInPictureWillEnter(),
+        onPictureInPictureTerminated: _onPictureInPictureTerminated(),
         onError: _onError));
   }
 
@@ -243,6 +241,13 @@ class _JoinMeetingScreenState extends State<JoinMeetingScreen> {
   _joinMeeting() async {
     String serverUrl = serverText.text?.trim()?.isEmpty ?? "" ? null : serverText.text;
 
+    Map<FeatureFlagEnum, bool> featureFlags = {
+      FeatureFlagEnum.WELCOME_PAGE_ENABLED: false,
+      FeatureFlagEnum.INVITE_ENABLED: false,
+      FeatureFlagEnum.CLOSE_CAPTIONS_ENABLED: true,
+      FeatureFlagEnum.CALENDAR_ENABLED: true,
+    };
+
     try {
       FeatureFlag featureFlag = FeatureFlag();
       featureFlag.welcomePageEnabled = false;
@@ -257,8 +262,7 @@ class _JoinMeetingScreenState extends State<JoinMeetingScreen> {
 
       featureFlag.resolution = FeatureFlagVideoResolution.MD_RESOLUTION;
 
-      var options = JitsiMeetingOptions()
-        ..room = roomController.text
+      var options = JitsiMeetingOptions(room: roomController.text)
         ..serverURL = serverUrl
         ..subject = subjectText.text
         ..userDisplayName = username
@@ -267,24 +271,24 @@ class _JoinMeetingScreenState extends State<JoinMeetingScreen> {
         ..audioOnly = isAudioOnly
         ..audioMuted = isAudioMuted
         ..videoMuted = isVideoMuted
-        ..featureFlag = featureFlag;
+        ..featureFlags.addAll(featureFlags);
 
       debugPrint("JitsiMeetingOptions: $options");
       await JitsiMeet.joinMeeting(
         options,
-        listener: JitsiMeetingListener(onConferenceWillJoin: ({message}) {
+        listener: JitsiMeetingListener(onConferenceWillJoin: (message) {
           debugPrint("${options.room} will join with message: $message");
-        }, onConferenceJoined: ({message}) {
+        }, onConferenceJoined: (message) {
           upload2();
           debugPrint("${options.room} joined with message: $message");
-        }, onConferenceTerminated: ({message}) {
+        }, onConferenceTerminated: (message) {
           //Navigator.pushReplacement(context, new MaterialPageRoute(builder: (context) => HomeScreen(notificationAppLaunchDetails)));
           meeting = false;
           Fluttertoast.showToast(msg: 'Meeting Ended', toastLength: Toast.LENGTH_SHORT, gravity: ToastGravity.BOTTOM);
           debugPrint("${options.room} terminated with message: $message");
-        }, onPictureInPictureWillEnter: ({message}) {
+        }, onPictureInPictureWillEnter: (message) {
           debugPrint("${options.room} entered PIP mode with message: $message");
-        }, onPictureInPictureTerminated: ({message}) {
+        }, onPictureInPictureTerminated: (message) {
           debugPrint("${options.room} exited PIP mode with message: $message");
         }),
       );
@@ -302,23 +306,23 @@ class _JoinMeetingScreenState extends State<JoinMeetingScreen> {
     }, "Currencies characters aren't allowed in room names."),
   };
 
-  void _onConferenceWillJoin({message}) {
+  _onConferenceWillJoin({message}) {
     debugPrint("_onConferenceWillJoin broadcasted with message: $message");
   }
 
-  void _onConferenceJoined({message}) {
+  _onConferenceJoined({message}) {
     debugPrint("_onConferenceJoined broadcasted with message: $message");
   }
 
-  void _onConferenceTerminated({message}) {
+  _onConferenceTerminated({message}) {
     debugPrint("_onConferenceTerminated broadcasted with message: $message");
   }
 
-  void _onPictureInPictureWillEnter({message}) {
+  _onPictureInPictureWillEnter({message}) {
     debugPrint("_onPictureInPictureWillEnter broadcasted with message: $message");
   }
 
-  void _onPictureInPictureTerminated({message}) {
+  _onPictureInPictureTerminated({message}) {
     debugPrint("_onPictureInPictureTerminated broadcasted with message: $message");
   }
 

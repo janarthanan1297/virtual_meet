@@ -24,9 +24,9 @@ dependencies:
   flutter:
     sdk: flutter
   provider:
+  connectivity: ^3.0.3
   shared_preferences: 
   carousel_slider:
-  flutter_icons: ^1.1.0
   bubble_bottom_bar: ^1.2.0
   shrink_sidemenu: ^1.0.0+3
   liquid_ui: ^1.0.0+9
@@ -35,9 +35,9 @@ dependencies:
   pin_code_fields:
   table_calendar: ^2.3.3
   date_format:
-  firebase_auth: ^0.18.1
+  firebase_auth: ^3.0.1
   google_sign_in: "^4.5.4"
-  jitsi_meet: ^2.0.0
+  jitsi_meet: ^4.0.0
   fluttertoast: ^7.1.4
   share: ^2.0.1
   firebase_dynamic_links: 
@@ -49,9 +49,8 @@ dependencies:
   rxdart: ^0.26.0-nullsafety.1
   ndialog: ^4.1.0
   firebase_messaging: 
-  firebase_core :
+  firebase_core : 
   cloud_firestore:
-  timeline_tile: ^2.0.0
   liquid_progress_indicator: ^0.3.2
   move_to_background: ^1.0.2
   uuid:

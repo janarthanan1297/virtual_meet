@@ -9,6 +9,8 @@ import 'package:virtual_classroom_meet/layout/history.dart';
 import 'package:virtual_classroom_meet/layout/join_meeting.dart';
 import 'package:virtual_classroom_meet/layout/meeting_screen.dart';
 import 'package:virtual_classroom_meet/res/color.dart';
+import 'package:virtual_classroom_meet/res/connectivity_provider.dart';
+import 'package:virtual_classroom_meet/res/no_internet.dart';
 import 'package:virtual_classroom_meet/res/theme.dart';
 import 'package:virtual_classroom_meet/main.dart';
 
@@ -38,6 +40,7 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     _configureDidReceiveLocalNotificationSubject();
     onSelectNotification();
+    Provider.of<ConnectivityProvider>(context, listen: false).startMonitoring();
   }
 
   void onSelectNotification() {
@@ -87,57 +90,67 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      bottomNavigationBar: Consumer<ThemeNotifier>(
-          builder: (context, notifier, child) => BubbleBottomBar(
-                //fabLocation: BubbleBottomBarFabLocation.end,
-                opacity: .2,
-                currentIndex: page,
-                onTap: changePage,
-                elevation: 30.0,
-                backgroundColor: notifier.darkTheme ? Colors.white : Color(0xFF131313),
-                items: <BubbleBottomBarItem>[
-                  BubbleBottomBarItem(
-                      backgroundColor: primary,
-                      icon: FaIcon(
-                        FontAwesomeIcons.video,
-                        color: notifier.darkTheme ? Colors.black : Colors.white,
-                        size: 20,
-                      ),
-                      activeIcon: FaIcon(
-                        FontAwesomeIcons.video,
-                        color: primary,
-                        size: 20,
-                      ),
-                      title: Text("Meeting")),
-                  BubbleBottomBarItem(
-                      backgroundColor: Colors.red,
-                      icon: FaIcon(
-                        FontAwesomeIcons.clock,
-                        color: notifier.darkTheme ? Colors.black : Colors.white,
-                        size: 20,
-                      ),
-                      activeIcon: FaIcon(
-                        FontAwesomeIcons.clock,
-                        color: red,
-                        size: 20,
-                      ),
-                      title: Text("Schedule")),
-                  BubbleBottomBarItem(
-                      backgroundColor: Colors.green,
-                      icon: FaIcon(
-                        FontAwesomeIcons.history,
-                        color: notifier.darkTheme ? Colors.black : Colors.white,
-                        size: 20,
-                      ),
-                      activeIcon: FaIcon(
-                        FontAwesomeIcons.history,
-                        color: Colors.green,
-                        size: 20,
-                      ),
-                      title: Text("History")),
-                ],
-              )),
-      body: pageOptions[page],
-    );
+        bottomNavigationBar: Consumer<ThemeNotifier>(
+            builder: (context, notifier, child) => BubbleBottomBar(
+                  //fabLocation: BubbleBottomBarFabLocation.end,
+                  opacity: .2,
+                  currentIndex: page,
+                  onTap: changePage,
+                  elevation: 30.0,
+                  backgroundColor: notifier.darkTheme ? Colors.white : Color(0xFF131313),
+                  items: <BubbleBottomBarItem>[
+                    BubbleBottomBarItem(
+                        backgroundColor: primary,
+                        icon: FaIcon(
+                          FontAwesomeIcons.video,
+                          color: notifier.darkTheme ? Colors.black : Colors.white,
+                          size: 20,
+                        ),
+                        activeIcon: FaIcon(
+                          FontAwesomeIcons.video,
+                          color: primary,
+                          size: 20,
+                        ),
+                        title: Text("Meeting")),
+                    BubbleBottomBarItem(
+                        backgroundColor: Colors.red,
+                        icon: FaIcon(
+                          FontAwesomeIcons.clock,
+                          color: notifier.darkTheme ? Colors.black : Colors.white,
+                          size: 20,
+                        ),
+                        activeIcon: FaIcon(
+                          FontAwesomeIcons.clock,
+                          color: red,
+                          size: 20,
+                        ),
+                        title: Text("Schedule")),
+                    BubbleBottomBarItem(
+                        backgroundColor: Colors.green,
+                        icon: FaIcon(
+                          FontAwesomeIcons.history,
+                          color: notifier.darkTheme ? Colors.black : Colors.white,
+                          size: 20,
+                        ),
+                        activeIcon: FaIcon(
+                          FontAwesomeIcons.history,
+                          color: Colors.green,
+                          size: 20,
+                        ),
+                        title: Text("History")),
+                  ],
+                )),
+        body: Consumer<ConnectivityProvider>(
+          builder: (consumerContext, model, child) {
+            if (model.isOnline != null) {
+              return model.isOnline ? pageOptions[page] : NoInternet();
+            }
+            return Container(
+              child: Center(
+                child: CircularProgressIndicator(),
+              ),
+            );
+          },
+        ));
   }
 }
