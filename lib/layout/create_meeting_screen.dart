@@ -39,6 +39,7 @@ class _CreateMeeetingScreenState extends State<CreateMeeetingScreen> {
   final nameText = TextEditingController(text: "Plugin Test User");
   final emailText = TextEditingController(text: "fake@email.com");
   final _formKey = GlobalKey<FormState>();
+  GlobalKey<dynamic> globalKey = GlobalKey();
   bool isLoading = false;
   bool isVideoMuted = true;
   var isAudioOnly = false;
@@ -109,12 +110,13 @@ class _CreateMeeetingScreenState extends State<CreateMeeetingScreen> {
   }
 
   Future<void> refresh() async {
-    setState(() {});
-    subjectText.text = '';
-    validate = false;
-    isVis = false;
-    code = '';
-    _formKey.currentState.reset();
+    setState(() {
+      subjectText.text = '';
+      validate = false;
+      isVis = false;
+      code = '';
+      _formKey.currentState.reset();
+    });
   }
 
   @override
@@ -122,7 +124,9 @@ class _CreateMeeetingScreenState extends State<CreateMeeetingScreen> {
     var size = MediaQuery.of(context).size;
     return Scaffold(
         body: RefreshIndicator(
-            onRefresh: this.refresh,
+            onRefresh: () {
+              return refresh();
+            },
             child: Form(
               key: _formKey,
               child: Container(
